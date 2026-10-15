@@ -4,7 +4,8 @@
 """
     PhaseWaves
 
-Returned by [`phaseWaves`](@ref). One entry per agent-frame with enough neighbours for a fit:
+The result of `PhaseWaves(p::PhaseResult; r)`. One entry per agent-frame with enough neighbours
+for a fit:
 
 - `frame`, `id`, `position`: where the fit was made.
 - `gradient`: the fitted local phase gradient ∇φ (radians per position unit).
@@ -51,7 +52,7 @@ julia> field = agentField(; n = 300, L = 150.0, nframes = 150, rng = Xoshiro(1))
 julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 90,
                      rng = Xoshiro(2));
 
-julia> w = phaseWaves(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)); r = 30);
+julia> w = PhaseWaves(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)); r = 30);
 
 julia> cleanShare(w) > 0.9
 true
@@ -61,7 +62,7 @@ cleanShare(w::PhaseWaves; minr2::Real = 0.5) =
     isempty(w.r2) ? NaN : count(>=(minr2), w.r2) / length(w.r2)
 
 """
-    phaseWaves(p::PhaseResult; r, minneighbours = 4, frames = 1:nframes) -> PhaseWaves
+    PhaseWaves(p::PhaseResult; r, minneighbours = 4, frames = 1:nframes) -> PhaseWaves
 
 Fit a local plane wave around every agent with a phase: least squares of the wrapped phase
 differences to the neighbours within `r` on their displacements gives ∇φ. The wave travels along
@@ -80,7 +81,7 @@ julia> field = agentField(; n = 300, L = 150.0, nframes = 150, rng = Xoshiro(1))
 julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 90,
                      rng = Xoshiro(2));
 
-julia> w = phaseWaves(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)); r = 30);
+julia> w = PhaseWaves(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)); r = 30);
 
 julia> good = w.r2 .>= 0.5;
 
@@ -91,9 +92,9 @@ julia> round(median(filter(!isnan, w.speed[good])); digits = 1)
 0.5
 ```
 """
-function phaseWaves(p::PhaseResult{D,I}; r::Real, minneighbours::Integer = 4,
+function PhaseWaves(p::PhaseResult{D,I}; r::Real, minneighbours::Integer = 4,
                     frames = 1:nframes(p)) where {D,I}
-    D == 2 || throw(ArgumentError("phaseWaves needs 2D positions; got $(D)D"))
+    D == 2 || throw(ArgumentError("PhaseWaves needs 2D positions; got $(D)D"))
     r > 0 || throw(ArgumentError("r must be positive, got $r"))
     minneighbours >= 2 || throw(ArgumentError("minneighbours must be at least 2 for a plane fit"))
     next = [zeros(Int, length(φ)) for φ in p.phase]

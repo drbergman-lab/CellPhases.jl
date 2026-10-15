@@ -29,11 +29,11 @@ field = agentField(; n = 400, L = 300.0, nframes = 200, step = 0.5, rng = Xoshir
 v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 60, noise = 0.6,
               rng = Xoshiro(2))
 p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
-w = phaseWaves(p; r = 30, frames = 1:4:200)
-c = phaseCoherence(p; dr = 10, rmax = 80, frames = 1:4:200, rng = Xoshiro(3))
-o = orderParameter(p; radii = [10, 20, 30, 40, 60], frames = 1:4:200, rng = Xoshiro(3))
+w = PhaseWaves(p; r = 30, frames = 1:4:200)
+c = PhaseCoherence(p; dr = 10, rmax = 80, frames = 1:4:200, rng = Xoshiro(3))
+o = OrderParameter(p; radii = [10, 20, 30, 40, 60], frames = 1:4:200, rng = Xoshiro(3))
 
-plot(plot(w), plot(c), plot(o), plot(cycleLengths(p)), plot(phaseValueCheck(p)),
+plot(plot(w), plot(c), plot(o), plot(CycleLengths(p)), plot(PhaseValueCheck(p)),
      plot(p, :portrait, 7); layout = (2, 3), size = (1200, 750))
 ```
 
@@ -59,8 +59,8 @@ fig = Figure(size = (1200, 750))
 roseplot(fig[1, 1], w)
 coherenceplot(fig[1, 2], c)
 orderparameterplot(fig[1, 3], o)
-cyclelengthplot(fig[2, 1], cycleLengths(p))
-phasevalueplot(fig[2, 2], phaseValueCheck(p))
+cyclelengthplot(fig[2, 1], CycleLengths(p))
+phasevalueplot(fig[2, 2], PhaseValueCheck(p))
 portraitplot(fig[2, 3], p, 7)
 fig
 ```

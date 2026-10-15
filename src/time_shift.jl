@@ -8,7 +8,7 @@ A time-shift surrogate of `p`: each track's phase and amplitude series is circul
 independent random number of frames. Positions, IDs and values are unchanged.
 
 Every agent keeps its own rhythm and amplitude, while phases at the same moment in neighbouring
-agents become unrelated. [`phaseCoherence`](@ref) and [`orderParameter`](@ref) use it for their
+agents become unrelated. [`PhaseCoherence`](@ref) and [`OrderParameter`](@ref) use it for their
 null bands and p-values; any readout can be run on it directly.
 
 # Examples

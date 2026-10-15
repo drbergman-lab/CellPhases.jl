@@ -5,8 +5,10 @@ Per-agent phase analysis of oscillating values in agent-based model output: band
 agent's trace, take its Hilbert phase, and measure how the phases relate in space (coherence with
 distance, local order parameter, local phase waves).
 
-Entry point: [`cellPhases`](@ref). Readouts: [`cycleLengths`](@ref), [`phaseValueCheck`](@ref),
-[`phaseCoherence`](@ref), [`orderParameter`](@ref), [`phaseWaves`](@ref).
+Entry point: [`cellPhases`](@ref). Readouts, each constructed from a `PhaseResult`:
+[`CycleLengths`](@ref), [`PhaseValueCheck`](@ref), [`PhaseCoherence`](@ref),
+[`OrderParameter`](@ref), [`PhaseWaves`](@ref); for replicate runs, the lowercase functions
+([`phaseCoherence`](@ref) …) return per-replicate and pooled results.
 """
 module CellPhases
 

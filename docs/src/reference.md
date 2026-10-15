@@ -13,15 +13,10 @@ timeShift
 ## Readouts
 
 ```@docs
-cycleLengths
 CycleLengths
-phaseValueCheck
 PhaseValueCheck
-phaseCoherence
 PhaseCoherence
-orderParameter
 OrderParameter
-phaseWaves
 PhaseWaves
 cleanShare
 ```
@@ -29,6 +24,11 @@ cleanShare
 ## Replicates
 
 ```@docs
+phaseCoherence
+orderParameter
+phaseWaves
+cycleLengths
+phaseValueCheck
 Replicates
 replicateSpread
 ```

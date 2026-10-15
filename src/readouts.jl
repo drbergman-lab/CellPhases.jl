@@ -13,7 +13,7 @@ end
 """
     CycleLengths
 
-Returned by [`cycleLengths`](@ref).
+The result of `CycleLengths(p::PhaseResult)`.
 
 - `lengths`: time between successive upward crossings of φ = 0 (successive peaks).
 - `ids`: the agent each cycle belongs to.
@@ -28,7 +28,7 @@ Base.show(io::IO, ::MIME"text/plain", c::CycleLengths) =
           isempty(c.lengths) ? "" : ", median $(round(median(c.lengths); sigdigits = 4))")
 
 """
-    cycleLengths(p::PhaseResult) -> CycleLengths
+    CycleLengths(p::PhaseResult) -> CycleLengths
 
 The time between successive peaks of each agent's band-passed signal: successive upward crossings
 of φ = 0, each placed between frames by linear interpolation of the phase.
@@ -44,13 +44,13 @@ julia> field = agentField(; n = 100, L = 100.0, nframes = 200, rng = Xoshiro(1))
 
 julia> v = pulseTrain(field.ids; dt = 10, period = 170, rng = Xoshiro(2));
 
-julia> c = cycleLengths(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)));
+julia> c = CycleLengths(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)));
 
 julia> round(median(c.lengths); digits = -1)
 170.0
 ```
 """
-function cycleLengths(p::PhaseResult{D,I}) where {D,I}
+function CycleLengths(p::PhaseResult{D,I}) where {D,I}
     lengths = Float64[]
     ids = I[]
     for tr in p.tracks
@@ -83,7 +83,7 @@ end
 """
     PhaseValueCheck
 
-Returned by [`phaseValueCheck`](@ref).
+The result of `PhaseValueCheck(p::PhaseResult)`.
 
 - `phase`, `zscore`: every agent-frame's phase and its transformed value, z-scored within its
   track.
@@ -108,7 +108,7 @@ Base.show(io::IO, ::MIME"text/plain", c::PhaseValueCheck) =
           "$(round(100c.r2; digits = 1))% of the variance; peak at φ = $(round(rad2deg(c.peak); digits = 1))°")
 
 """
-    phaseValueCheck(p::PhaseResult; nbins = 36, minframes = 20) -> PhaseValueCheck
+    PhaseValueCheck(p::PhaseResult; nbins = 36, minframes = 20) -> PhaseValueCheck
 
 Check that the phase follows the value it was extracted from: regress each agent-frame's
 transformed value, z-scored within its track, on `cos φ` and `sin φ`.
@@ -126,13 +126,13 @@ julia> field = agentField(; n = 100, L = 100.0, nframes = 150, rng = Xoshiro(1))
 julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0,
                      rng = Xoshiro(2));
 
-julia> c = phaseValueCheck(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)));
+julia> c = PhaseValueCheck(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)));
 
 julia> c.r2 > 0.7, abs(rad2deg(c.peak)) < 5
 (true, true)
 ```
 """
-function phaseValueCheck(p::PhaseResult; nbins::Integer = 36, minframes::Integer = 20)
+function PhaseValueCheck(p::PhaseResult; nbins::Integer = 36, minframes::Integer = 20)
     φall = Float64[]
     zscores = Float64[]
     for tr in p.tracks
@@ -169,7 +169,7 @@ end
 """
     PhaseCoherence
 
-Returned by [`phaseCoherence`](@ref). Per distance bin:
+The result of `PhaseCoherence(p::PhaseResult)`. Per distance bin:
 
 - `centers`: bin centres (position units); bin `k` holds pairs at distance within `dr/2` of
   `centers[k]`.
@@ -198,7 +198,7 @@ function Base.show(io::IO, ::MIME"text/plain", c::PhaseCoherence)
 end
 
 """
-    phaseCoherence(p::PhaseResult; dr, rmax, frames = 1:nframes, nsurrogates = 19,
+    PhaseCoherence(p::PhaseResult; dr, rmax, frames = 1:nframes, nsurrogates = 19,
                    rng = Random.default_rng()) -> PhaseCoherence
 
 How far apart agents can be and still be in step: the mean `cos(φᵢ − φⱼ)` over pairs of agents in
@@ -219,13 +219,13 @@ julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direct
 
 julia> p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300));
 
-julia> c = phaseCoherence(p; dr = 10, rmax = 40, frames = 1:4:150, rng = Xoshiro(2));
+julia> c = PhaseCoherence(p; dr = 10, rmax = 40, frames = 1:4:150, rng = Xoshiro(2));
 
 julia> c.excess[2] > 0.5, all(<(0.1), abs.(c.null))
 (true, true)
 ```
 """
-function phaseCoherence(p::PhaseResult; dr::Real, rmax::Real, frames = 1:nframes(p),
+function PhaseCoherence(p::PhaseResult; dr::Real, rmax::Real, frames = 1:nframes(p),
                         nsurrogates::Integer = 19, rng::AbstractRNG = Random.default_rng())
     dr > 0 && rmax >= 0 || throw(ArgumentError("dr must be positive and rmax non-negative"))
     centers = collect(0:Float64(dr):Float64(rmax))
@@ -283,7 +283,7 @@ end
 """
     OrderParameter
 
-Returned by [`orderParameter`](@ref). Per radius:
+The result of `OrderParameter(p::PhaseResult)`. Per radius:
 
 - `radii`; `R`: the mean over agent-frames of the local order parameter `|mean e^{iφ}|` over the
   agents within that radius (centre included).
@@ -310,7 +310,7 @@ function Base.show(io::IO, ::MIME"text/plain", o::OrderParameter)
 end
 
 """
-    orderParameter(p::PhaseResult; radii, frames = 1:nframes, minagents = 3, nsurrogates = 19,
+    OrderParameter(p::PhaseResult; radii, frames = 1:nframes, minagents = 3, nsurrogates = 19,
                    rng = Random.default_rng()) -> OrderParameter
 
 Local synchrony around each agent: `R = |mean e^{iφ}|` over the agents within radius `r` of it
@@ -331,13 +331,13 @@ julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direct
 
 julia> p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300));
 
-julia> o = orderParameter(p; radii = [10, 20, 40], frames = 1:4:150, rng = Xoshiro(2));
+julia> o = OrderParameter(p; radii = [10, 20, 40], frames = 1:4:150, rng = Xoshiro(2));
 
 julia> all(o.R .> o.nullhigh)
 true
 ```
 """
-function orderParameter(p::PhaseResult; radii, frames = 1:nframes(p), minagents::Integer = 3,
+function OrderParameter(p::PhaseResult; radii, frames = 1:nframes(p), minagents::Integer = 3,
                         nsurrogates::Integer = 19, rng::AbstractRNG = Random.default_rng())
     radii = sort!(Float64.(collect(radii)))
     isempty(radii) || first(radii) >= 0 || throw(ArgumentError("radii must be non-negative"))

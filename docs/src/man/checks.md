@@ -13,7 +13,7 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
 ## Does the phase follow the value?
 
 !!! tierbrief
-    `phaseValueCheck` regresses each agent-frame's transformed value, z-scored within its track,
+    `PhaseValueCheck` regresses each agent-frame's transformed value, z-scored within its track,
     on `cos φ` and `sin φ`.
 
 !!! tierfull
@@ -28,13 +28,13 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
     of the pulse-like Delta and Ngn.
 
 ```@example checks
-phaseValueCheck(p)
+PhaseValueCheck(p)
 ```
 
 ## Cycle lengths
 
 !!! tierbrief
-    A cycle ends each time φ crosses 0 going upward; `cycleLengths` returns the time between
+    A cycle ends each time φ crosses 0 going upward; `CycleLengths` returns the time between
     successive crossings, per agent.
 
 !!! tierfull
@@ -45,7 +45,7 @@ phaseValueCheck(p)
     edge means the band is cutting it.
 
 ```@example checks
-c = cycleLengths(p)
+c = CycleLengths(p)
 ```
 
 !!! tierdev

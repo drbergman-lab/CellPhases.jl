@@ -38,15 +38,15 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
 of the band-passed signal; `NaN` where the agent has none. The readouts summarise it:
 
 ```@example index
-cycleLengths(p)
+CycleLengths(p)
 ```
 
 ```@example index
-phaseCoherence(p; dr = 10, rmax = 60, frames = 1:4:200, rng = Xoshiro(3))
+PhaseCoherence(p; dr = 10, rmax = 60, frames = 1:4:200, rng = Xoshiro(3))
 ```
 
 ```@example index
-w = phaseWaves(p; r = 30, frames = 1:4:200)
+w = PhaseWaves(p; r = 30, frames = 1:4:200)
 rose = roseData(w)
 (direction = rose.meandirection, speed = rose.speed[argmax(rose.share)],
  clean_percent = rose.clean)

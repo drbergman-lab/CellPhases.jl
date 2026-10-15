@@ -42,7 +42,7 @@ and `ids[t]`, one entry per agent present in frame `t`. IDs can be of any type.
     The trace is passed through `transform` (`identity` by default) and its mean subtracted.
     For a heavy-tailed, bursty signal, `transform = log` keeps bursts from dominating: a jump
     from 2 to 20 then counts the same as one from 1 to 10. With `log`, values must be positive.
-    The transform also sets what `phaseValueCheck` compares the phase with.
+    The transform also sets what `PhaseValueCheck` compares the phase with.
 
 Each kept piece is a [`Track`](@ref):
 

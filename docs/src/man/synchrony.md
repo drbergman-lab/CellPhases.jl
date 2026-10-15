@@ -26,7 +26,7 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
     makes the null band far too narrow: consecutive frames are nearly identical, so the
     shuffles from different frames are not independent, and p-values come out much too small.
 
-    `phaseCoherence` and `orderParameter` draw `nsurrogates` surrogates (19 by default, so the
+    `PhaseCoherence` and `OrderParameter` draw `nsurrogates` surrogates (19 by default, so the
     smallest p-value is 0.05) and report their mean as `null`, their 2.5–97.5% range as
     `nulllow`/`nullhigh`, and a one-sided `pvalue`. Raise `nsurrogates` for finer p-values; the
     cost grows linearly.
@@ -41,7 +41,7 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
 ## Coherence with distance
 
 !!! tierbrief
-    `phaseCoherence` averages `cos(φᵢ − φⱼ)` over pairs of agents in the same frame, binned by
+    `PhaseCoherence` averages `cos(φᵢ − φⱼ)` over pairs of agents in the same frame, binned by
     the distance between them.
 
 !!! tierfull
@@ -54,13 +54,13 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
     neighbouring frames carry almost the same information.
 
 ```@example sync
-c = phaseCoherence(p; dr = 10, rmax = 80, frames = 1:4:200, rng = Xoshiro(3))
+c = PhaseCoherence(p; dr = 10, rmax = 80, frames = 1:4:200, rng = Xoshiro(3))
 ```
 
 ## The local order parameter
 
 !!! tierbrief
-    `orderParameter` measures, around each agent, how aligned the phases within radius `r` are:
+    `OrderParameter` measures, around each agent, how aligned the phases within radius `r` are:
     `R = |mean e^{iφ}|`, averaged over agents and frames.
 
 !!! tierfull
@@ -71,7 +71,7 @@ c = phaseCoherence(p; dr = 10, rmax = 80, frames = 1:4:200, rng = Xoshiro(3))
     neighbours are less aligned than chance, as in lateral inhibition.
 
 ```@example sync
-o = orderParameter(p; radii = [10, 20, 40, 60], frames = 1:4:200, rng = Xoshiro(3))
+o = OrderParameter(p; radii = [10, 20, 40, 60], frames = 1:4:200, rng = Xoshiro(3))
 ```
 
 !!! tierdev

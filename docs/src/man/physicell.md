@@ -37,8 +37,10 @@ p = cellPhases(sequence; value = :notch, cell_types = "rgc", band = (100, 300))
 ## Replicates and conditions
 
 !!! tierbrief
-    Every readout also takes a vector of `PhaseResult`s and returns a [`Replicates`](@ref): one
-    result per replicate in `results` and a `pooled` one.
+    Each readout's constructor takes one `PhaseResult`; its lowercase function
+    (`phaseCoherence`, `orderParameter`, `phaseWaves`, `cycleLengths`, `phaseValueCheck`) takes a
+    vector of them and returns a [`Replicates`](@ref): one result per replicate in `results` and
+    a `pooled` one.
 
 !!! tierfull
     One simulation's coherence has a null band but no measure of how much it varies between

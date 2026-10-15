@@ -14,7 +14,7 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
 ## Direction
 
 !!! tierbrief
-    `phaseWaves` fits `wrap(φⱼ − φᵢ) ≈ ∇φ · (xⱼ − xᵢ)` by least squares over the neighbours
+    `PhaseWaves` fits `wrap(φⱼ − φᵢ) ≈ ∇φ · (xⱼ − xᵢ)` by least squares over the neighbours
     within `r` (at least `minneighbours`), for every agent with a phase in the selected frames.
     The wave travels along −∇φ.
 
@@ -29,7 +29,7 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
     had clean fits, depending on the signal.
 
 ```@example waves
-w = phaseWaves(p; r = 30, frames = 1:4:200)
+w = PhaseWaves(p; r = 30, frames = 1:4:200)
 good = w.r2 .>= 0.5
 rad2deg(angle(mean(cis.(w.direction[good])))), cleanShare(w)
 ```

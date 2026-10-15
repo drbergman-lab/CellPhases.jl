@@ -31,7 +31,7 @@ julia> field = agentField(; n = 300, L = 150.0, nframes = 150, rng = Xoshiro(1))
 julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 90,
                      rng = Xoshiro(2));
 
-julia> w = phaseWaves(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)); r = 30);
+julia> w = PhaseWaves(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)); r = 30);
 
 julia> rose = roseData(w);
 
@@ -140,7 +140,7 @@ end
 
 The value against phase as a density: `density[i, j]` is the share of agent-frames in phase bin
 `i` whose z-scored value lies in `zscoreedges[j:j+1]` (each phase column sums to at most 1), plus the
-binned median and quartiles from [`phaseValueCheck`](@ref).
+binned median and quartiles from [`PhaseValueCheck`](@ref).
 
 # Examples
 ```jldoctest
@@ -151,7 +151,7 @@ julia> field = agentField(; n = 50, L = 50.0, nframes = 120, rng = Xoshiro(1));
 julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0,
                      rng = Xoshiro(2));
 
-julia> d = phaseValueData(phaseValueCheck(cellPhases(field.positions, v, field.ids; dt = 10,
+julia> d = phaseValueData(PhaseValueCheck(cellPhases(field.positions, v, field.ids; dt = 10,
                                                      band = (100, 300))));
 
 julia> size(d.density), round(maximum(sum(d.density; dims = 2)); digits = 2)   # each phase column sums to ≤ 1

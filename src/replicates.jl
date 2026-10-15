@@ -4,7 +4,9 @@
 """
     Replicates{T}
 
-A readout run on each of several [`PhaseResult`](@ref)s (replicate simulations).
+A readout run on each of several [`PhaseResult`](@ref)s (replicate simulations), returned by
+the lowercase readout functions: `phaseCoherence(runs; …)`, `orderParameter`, `phaseWaves`,
+`cycleLengths`, `phaseValueCheck`.
 
 - `results::Vector{T}`: one result per replicate, in input order.
 - `pooled::T`: the readout on all replicates together. Cycle lengths, phase-value pairs and wave
@@ -57,20 +59,38 @@ end
 
 const _Runs = AbstractVector{<:PhaseResult}
 
+"""
+    cycleLengths(runs::AbstractVector{<:PhaseResult}) -> Replicates{CycleLengths}
+
+[`CycleLengths`](@ref) for each of several replicate runs, plus a pooled result; see
+[`Replicates`](@ref).
+"""
 function cycleLengths(ps::_Runs)
-    rs = [cycleLengths(p) for p in ps]
+    rs = [CycleLengths(p) for p in ps]
     return Replicates(rs, CycleLengths(reduce(vcat, (r.lengths for r in rs)),
                                        reduce(vcat, (r.ids for r in rs))))
 end
 
+"""
+    phaseValueCheck(runs::AbstractVector{<:PhaseResult}; kwargs...) -> Replicates{PhaseValueCheck}
+
+[`PhaseValueCheck`](@ref) for each of several replicate runs, plus a pooled result; see
+[`Replicates`](@ref). Keywords are those of `PhaseValueCheck(p::PhaseResult; …)`.
+"""
 function phaseValueCheck(ps::_Runs; nbins::Integer = 36, kwargs...)
-    rs = [phaseValueCheck(p; nbins, kwargs...) for p in ps]
+    rs = [PhaseValueCheck(p; nbins, kwargs...) for p in ps]
     return Replicates(rs, _phasevalue(reduce(vcat, (r.phase for r in rs)),
                                       reduce(vcat, (r.zscore for r in rs)), nbins))
 end
 
+"""
+    phaseWaves(runs::AbstractVector{<:PhaseResult}; kwargs...) -> Replicates{PhaseWaves}
+
+[`PhaseWaves`](@ref) for each of several replicate runs, plus a pooled result; see
+[`Replicates`](@ref). Keywords are those of `PhaseWaves(p::PhaseResult; …)`.
+"""
 function phaseWaves(ps::_Runs; kwargs...)
-    rs = [phaseWaves(p; kwargs...) for p in ps]
+    rs = [PhaseWaves(p; kwargs...) for p in ps]
     cat(f) = reduce(vcat, (getfield(r, f) for r in rs))
     pooled = typeof(first(rs))(cat(:frame), cat(:id), cat(:position), cat(:gradient), cat(:r2),
                                cat(:direction), cat(:omega), cat(:speed), first(rs).r,
@@ -78,14 +98,26 @@ function phaseWaves(ps::_Runs; kwargs...)
     return Replicates(rs, pooled)
 end
 
+"""
+    phaseCoherence(runs::AbstractVector{<:PhaseResult}; kwargs...) -> Replicates{PhaseCoherence}
+
+[`PhaseCoherence`](@ref) for each of several replicate runs, plus a pooled result; see
+[`Replicates`](@ref). Keywords are those of `PhaseCoherence(p::PhaseResult; …)`.
+"""
 function phaseCoherence(ps::_Runs; kwargs...)
-    rs = [phaseCoherence(p; kwargs...) for p in ps]
+    rs = [PhaseCoherence(p; kwargs...) for p in ps]
     obs, sur, counts = _poolweighted(rs, :coherence)
     return Replicates(rs, _coherence(first(rs).centers, obs, sur, counts))
 end
 
+"""
+    orderParameter(runs::AbstractVector{<:PhaseResult}; kwargs...) -> Replicates{OrderParameter}
+
+[`OrderParameter`](@ref) for each of several replicate runs, plus a pooled result; see
+[`Replicates`](@ref). Keywords are those of `OrderParameter(p::PhaseResult; …)`.
+"""
 function orderParameter(ps::_Runs; kwargs...)
-    rs = [orderParameter(p; kwargs...) for p in ps]
+    rs = [OrderParameter(p; kwargs...) for p in ps]
     obs, sur, counts = _poolweighted(rs, :R)
     null, lo, hi, pv = _nullstats(obs, sur)
     return Replicates(rs, OrderParameter(first(rs).radii, obs, null, obs .- null, lo, hi, pv,

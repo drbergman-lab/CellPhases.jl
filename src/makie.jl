@@ -15,7 +15,7 @@ backend.
 # Examples
 ```julia
 using CairoMakie, CellPhases
-roseplot(phaseWaves(p; r = 30))
+roseplot(PhaseWaves(p; r = 30))
 ```
 """
 function roseplot end

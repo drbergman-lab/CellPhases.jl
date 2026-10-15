@@ -10,16 +10,16 @@ using CellPhases
 # per-frame positions, values and IDs, frames dt apart
 p = cellPhases(positions, values, ids; dt = 10, band = (100, 300))   # band: periods, same time unit as dt
 
-cycleLengths(p)                                  # time between successive peaks
-phaseCoherence(p; dr = 5, rmax = 80)             # ⟨cos Δφ⟩ by distance, with a time-shift null
-orderParameter(p; radii = [10, 20, 40])          # local synchrony R, with its null
-w = phaseWaves(p; r = 30)                        # local wave direction and speed
+CycleLengths(p)                                  # time between successive peaks
+PhaseCoherence(p; dr = 5, rmax = 80)             # ⟨cos Δφ⟩ by distance, with a time-shift null
+OrderParameter(p; radii = [10, 20, 40])          # local synchrony R, with its null
+w = PhaseWaves(p; r = 30)                        # local wave direction and speed
 roseData(w)                                      # plot-ready rose diagram
 ```
 
 With `using PhysiCellOutput` it reads PhysiCell output directly, and with
-`using PhysiCellModelManager` it takes simulations and monads (one result per replicate; every
-readout accepts the vector):
+`using PhysiCellModelManager` it takes simulations and monads (one result per replicate; the
+lowercase readouts, such as `phaseCoherence(runs; …)`, give per-replicate and pooled results):
 
 ```julia
 p = cellPhases(PhysiCellSequence("output"); value = :notch, cell_types = "rgc", band = (100, 300))

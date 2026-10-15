@@ -33,7 +33,7 @@ include("physicell_output.jl")
     @test isequal(p.phase, ref.phase)
     @test [tr.frames for tr in p.tracks if tr.id == 1] == [19:51, 90:132]
     @test [tr.frames for tr in p.tracks if tr.id == 2] == [19:81]     # frames 101–150 too short
-    w = phaseWaves(p; r = 30, frames = 1:4:150)
+    w = PhaseWaves(p; r = 30, frames = 1:4:150)
     good = w.r2 .>= 0.5
     @test rad2deg(angle(mean(cis.(w.direction[good])))) ≈ 90 atol = 3
     @test median(filter(!isnan, w.speed[good])) ≈ 0.5 rtol = 0.05

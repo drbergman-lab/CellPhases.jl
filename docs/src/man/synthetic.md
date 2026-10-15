@@ -22,7 +22,7 @@ field = agentField(; n = 300, L = 250.0, nframes = 150, step = 0.5, rng = Xoshir
 ```@example synthetic
 wave = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = -90,
                  rng = Xoshiro(2))
-w = phaseWaves(cellPhases(field.positions, wave, field.ids; dt = 10, band = (100, 300)); r = 30)
+w = PhaseWaves(cellPhases(field.positions, wave, field.ids; dt = 10, band = (100, 300)); r = 30)
 roseData(w).meandirection
 ```
 
@@ -36,7 +36,7 @@ roseData(w).meandirection
 
 ```@example synthetic
 pulses = pulseTrain(field.ids; dt = 10, period = 170, rng = Xoshiro(3))
-cycleLengths(cellPhases(field.positions, pulses, field.ids; dt = 10, band = (100, 300)))
+CycleLengths(cellPhases(field.positions, pulses, field.ids; dt = 10, band = (100, 300)))
 ```
 
 ## An oscillator field: known coherence
@@ -49,7 +49,7 @@ cycleLengths(cellPhases(field.positions, pulses, field.ids; dt = 10, band = (100
 
 ```@example synthetic
 osc = oscillatorField(field.positions, field.ids; dt = 10, period = 180, rng = Xoshiro(4))
-c = phaseCoherence(cellPhases(field.positions, osc, field.ids; dt = 10, band = (100, 300));
+c = PhaseCoherence(cellPhases(field.positions, osc, field.ids; dt = 10, band = (100, 300));
                    dr = 10, rmax = 40, frames = 1:4:150, rng = Xoshiro(5))
 c.excess
 ```

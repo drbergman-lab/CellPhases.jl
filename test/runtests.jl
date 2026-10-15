@@ -90,7 +90,7 @@ end
     truth = [ω * (t - 1) * DT - k * x[2] for x in still.positions[t]]
     @test maximum(angdiff.(p.phase[t], truth)) < 0.05
     # a wave moving +y reads +90°
-    w = phaseWaves(p; r = 30, frames = 50:10:150)
+    w = PhaseWaves(p; r = 30, frames = 50:10:150)
     @test rad2deg(circmean(w.direction)) ≈ 90 atol = 1
 end
 
@@ -101,7 +101,7 @@ end
         λ = speed / 60 * T
         v = planeWave(FIELD.positions; dt = DT, period = T, speed = speed / 60, direction = θ,
                       rng = Xoshiro(3))
-        w = phaseWaves(phases(v); r, frames = 1:4:200)
+        w = PhaseWaves(phases(v); r, frames = 1:4:200)
         good = w.r2 .>= 0.5
         if λ > 2r
             @test cleanShare(w) > 0.8
@@ -118,23 +118,23 @@ end
     # A pulse train puts most of its power in harmonics; only a correct band recovers its period.
     v = pulseTrain(FIELD.ids; dt = DT, period = 170, rng = Xoshiro(4))
     p = phases(v)
-    c = cycleLengths(p)
+    c = CycleLengths(p)
     @test median(c.lengths) ≈ 170 atol = 3
     @test length(c.lengths) > 2000
     @test eltype(c.ids) == Int
     # the same pulses read through a band that excludes the fundamental give the 2nd harmonic
     q = cellPhases(FIELD.positions, v, FIELD.ids; dt = DT, band = (60, 100))
-    @test median(cycleLengths(q).lengths) ≈ 85 atol = 3
+    @test median(CycleLengths(q).lengths) ≈ 85 atol = 3
     # a two-frequency signal: a weak harmonic does not move the cycle length
     two = [[exp(1 + cos(2π * (t - 1) * DT / 170) + 0.6cos(2π * (t - 1) * DT / 85 + 1)) for _ in f]
            for (t, f) in enumerate(FIELD.ids)]
-    @test median(cycleLengths(phases(two)).lengths) ≈ 170 atol = 1
+    @test median(CycleLengths(phases(two)).lengths) ≈ 170 atol = 1
 end
 
 @testset "phase tracks the value" begin
     v = planeWave(FIELD.positions; dt = DT, period = 180, speed = 0.5, direction = 0, rng = Xoshiro(5))
-    c = phaseValueCheck(phases(v; transform = log))   # planeWave is log-normal around a cosine
-    @test phaseValueCheck(phases(v)).r2 > 0.7         # on the raw scale the cosine is skewed
+    c = PhaseValueCheck(phases(v; transform = log))   # planeWave is log-normal around a cosine
+    @test PhaseValueCheck(phases(v)).r2 > 0.7         # on the raw scale the cosine is skewed
     @test c.r2 > 0.8                     # noise SD 0.3 against a unit cosine
     @test abs(rad2deg(c.peak)) < 5
     @test length(c.centers) == 36
@@ -156,13 +156,13 @@ end
 @testset "nulls on uncoupled oscillators" begin
     v = oscillatorField(FIELD.positions, FIELD.ids; dt = DT, period = 180, rng = Xoshiro(8))
     p = phases(v)
-    c = phaseCoherence(p; dr = 10, rmax = 60, frames = 1:4:200, rng = Xoshiro(9))
+    c = PhaseCoherence(p; dr = 10, rmax = 60, frames = 1:4:200, rng = Xoshiro(9))
     @test all(abs.(c.coherence[2:end]) .< 0.05)
     @test all(abs.(c.excess[2:end]) .< 0.05)
     @test all(0 .< c.nullhigh[2:end] .- c.nulllow[2:end] .< 0.15)
     @test all(c.pvalue[2:end] .> 0.01)
     @test size(c.surrogates) == (7, 19)
-    o = orderParameter(p; radii = [15, 30], frames = 1:4:200, rng = Xoshiro(9))
+    o = OrderParameter(p; radii = [15, 30], frames = 1:4:200, rng = Xoshiro(9))
     @test all(abs.(o.excess) .< 0.03)
     @test all(o.R .> 0.1)                       # ≈ 1/√n, not 0
 end
@@ -171,11 +171,11 @@ end
     v = oscillatorField(FIELD.positions, FIELD.ids; dt = DT, period = 180,
                         correlationlength = 25.0, phasesd = 1.0, rng = Xoshiro(10))
     p = phases(v)
-    c = phaseCoherence(p; dr = 10, rmax = 80, frames = 1:4:200, rng = Xoshiro(11))
+    c = PhaseCoherence(p; dr = 10, rmax = 80, frames = 1:4:200, rng = Xoshiro(11))
     @test issorted(c.coherence[2:end]; rev = true)
     @test all(c.coherence[2:5] .> c.nullhigh[2:5])
     @test all(c.pvalue[2:5] .== 1 / 20)
-    o = orderParameter(p; radii = [10, 20, 40], frames = 1:4:200, rng = Xoshiro(11))
+    o = OrderParameter(p; radii = [10, 20, 40], frames = 1:4:200, rng = Xoshiro(11))
     @test all(o.R .> o.nullhigh)
     @test issorted(o.R; rev = true)
 end
@@ -213,7 +213,7 @@ end
 @testset "plot data and recipes" begin
     v = planeWave(FIELD.positions; dt = DT, period = 180, speed = 0.5, direction = 90, rng = Xoshiro(13))
     p = phases(v)
-    w = phaseWaves(p; r = 30, frames = 1:4:200)
+    w = PhaseWaves(p; r = 30, frames = 1:4:200)
     rose = roseData(w)
     @test sum(rose.share) ≈ 100
     @test length(rose.wedges) == 18
@@ -224,13 +224,13 @@ end
     @test rose.rings[1] == (sqrt(5.0), "5%")
     @test_throws ArgumentError roseData(w; bin = 7)
 
-    c = phaseCoherence(p; dr = 10, rmax = 40, frames = 1:8:200, nsurrogates = 3)
+    c = PhaseCoherence(p; dr = 10, rmax = 40, frames = 1:8:200, nsurrogates = 3)
     @test length(coherenceData(c).x) == 4
-    o = orderParameter(p; radii = [10, 20], frames = 1:8:200, nsurrogates = 3)
+    o = OrderParameter(p; radii = [10, 20], frames = 1:8:200, nsurrogates = 3)
     @test orderParameterData(o).R == o.R
-    cl = cycleLengthData(cycleLengths(p))
-    @test sum(cl.counts) <= length(cycleLengths(p).lengths)
-    pv = phaseValueData(phaseValueCheck(p))
+    cl = cycleLengthData(CycleLengths(p))
+    @test sum(cl.counts) <= length(CycleLengths(p).lengths)
+    pv = phaseValueData(PhaseValueCheck(p))
     @test all(sum(pv.density; dims = 2) .<= 1 + 1e-12)
     tr = traceData(p, 7)
     @test length(tr.time) == 200 && tr.time[2] == DT
@@ -243,8 +243,8 @@ end
     @test length(series(w)) == 4 + 1 + 2 + 2           # axes, wedges, rings, arrow + halo
     @test length(series(c)) == 2
     @test length(series(o)) == 3
-    @test length(series(cycleLengths(p))) == 2
-    @test length(series(phaseValueCheck(p))) == 3
+    @test length(series(CycleLengths(p))) == 2
+    @test length(series(PhaseValueCheck(p))) == 3
     @test length(series(p, :trace, 7)) == 2
     @test length(series(p, :portrait, 7)) == 1
     @test_throws ArgumentError series(p, :rose, 7)

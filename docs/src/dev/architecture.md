@@ -7,8 +7,8 @@
 | `src/CellPhases.jl` | Module, imports, exports, includes. |
 | `src/phases.jl` | Steps 1–3: `Track`, `PhaseResult`, `bandpassFilter`, `cellPhases` (traces, filter, Hilbert phase, trim, mask). |
 | `src/time_shift.jl` | `timeShift` and `_shifted`, the time-shift null. |
-| `src/readouts.jl` | `cycleLengths`, `phaseValueCheck`, `phaseCoherence`, `orderParameter`, their result types, and the null statistics. |
-| `src/waves.jl` | `phaseWaves`, `PhaseWaves`, `cleanShare`, the local plane fit. |
+| `src/readouts.jl` | `CycleLengths`, `PhaseValueCheck`, `PhaseCoherence`, `OrderParameter`, their result types, and the null statistics. |
+| `src/waves.jl` | `PhaseWaves`, `PhaseWaves`, `cleanShare`, the local plane fit. |
 | `src/replicates.jl` | `Replicates`, `replicateSpread`, and the readout methods for vectors of results with their pooling. |
 | `src/synthetic.jl` | `agentField`, `planeWave`, `pulseTrain`, `oscillatorField`. |
 | `src/plotdata.jl` | `roseData` and the other plot-data functions. |
@@ -23,7 +23,7 @@
 
 ## One call, start to finish
 
-`cellPhases(positions, values, ids; dt, band)` then `phaseWaves(p; r)`:
+`cellPhases(positions, values, ids; dt, band)` then `PhaseWaves(p; r)`:
 
 1. `cellPhases` checks lengths, builds the filter (`bandpassFilter`, always with `fs = 1/dt`),
    and derives `trim` (`_filtermemory`) and `minlength` if not given.
@@ -32,10 +32,10 @@
 3. Each long-enough run is transformed (`_transform`), mean-subtracted, `filtfilt`-ed and
    `hilbert`-ed. Interior frames receive phase and amplitude, written back at `[frame][row]`; the
    run becomes a `Track`.
-4. `phaseWaves` maps each `(frame, row)` to the agent's row in the next frame through the tracks,
+4. `PhaseWaves` maps each `(frame, row)` to the agent's row in the next frame through the tracks,
    builds a `KDTree` per frame, fits a plane per agent (`_planefit`) and pushes one entry per fit.
 
-`phaseCoherence` and `orderParameter` draw all surrogate phase sets first (`_phasesets`) and
+`PhaseCoherence` and `OrderParameter` draw all surrogate phase sets first (`_phasesets`) and
 accumulate observed and surrogate sums in one pass over neighbour pairs; `_nullstats` turns the
 surrogate columns into null, band and p-value.
 

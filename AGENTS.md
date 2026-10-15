@@ -2,10 +2,11 @@
 
 Per-agent phase analysis of oscillating values in agent-based model output. The entry point is
 `cellPhases` in [`src/phases.jl`](src/phases.jl): per-frame positions, values and IDs in, a
-`PhaseResult` (Hilbert phase and amplitude per agent per frame) out. Readouts take a
-`PhaseResult`: `cycleLengths`, `phaseValueCheck`, `phaseCoherence`, `orderParameter`
-([`src/readouts.jl`](src/readouts.jl)) and `phaseWaves` ([`src/waves.jl`](src/waves.jl)); each
-also takes a vector of results for replicates ([`src/replicates.jl`](src/replicates.jl)).
+`PhaseResult` (Hilbert phase and amplitude per agent per frame) out. Readouts are constructors
+on a `PhaseResult`: `CycleLengths`, `PhaseValueCheck`, `PhaseCoherence`, `OrderParameter`
+([`src/readouts.jl`](src/readouts.jl)) and `PhaseWaves` ([`src/waves.jl`](src/waves.jl)). Their
+lowercase functions (`phaseCoherence(runs; …)` …) take a vector of results from replicate runs
+and return a `Replicates` ([`src/replicates.jl`](src/replicates.jl)).
 Plot-ready data is in [`src/plotdata.jl`](src/plotdata.jl), Plots recipes in
 [`src/recipes.jl`](src/recipes.jl), Makie recipes in
 [`ext/CellPhasesMakieExt.jl`](ext/CellPhasesMakieExt.jl) (functions declared in
@@ -62,7 +63,8 @@ The docs build needs at least one commit (Documenter reads `HEAD`), not a remote
 ## Conventions
 
 - Functions `camelCase` (`cellPhases`), internal helpers `_lowercase`, types `PascalCase`, files
-  `snake_case.jl`.
+  `snake_case.jl`. A readout of one run is a constructor of its result type
+  (`PhaseCoherence(p; …)`); the lowercase name is reserved for the replicate form.
 - Every exported name has a docstring with a runnable `jldoctest`. `checkdocs = :all`.
 - Docs follow the tiered-docs house style: `!!! tierbrief` / `tierfull` / `tierdev` /
   `tierjournal`, shallowest first within a section, never wrapping a code block.
@@ -70,8 +72,8 @@ The docs build needs at least one commit (Documenter reads `HEAD`), not a remote
 
 ## Sharp edges
 
-- Wavelengths shorter than about `2r` are misread by `phaseWaves`; the clean-fit share collapses
+- Wavelengths shorter than about `2r` are misread by `PhaseWaves`; the clean-fit share collapses
   there. Tested in "plane waves: speed and direction".
-- `orderParameter` under the null is about `1/√n`, not 0; always read it against `null`.
+- `OrderParameter` under the null is about `1/√n`, not 0; always read it against `null`.
 - An agent with a gap has two tracks; surrogates and z-scores treat them independently.
 - Doctests run with `using CellPhases, Statistics` (see `docs/make.jl`).
