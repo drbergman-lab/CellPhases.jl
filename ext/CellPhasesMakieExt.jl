@@ -145,7 +145,7 @@ end
 end
 
 Makie.preferred_axis_attributes(::Type{<:Axis}, ::CycleLengthPlot) =
-    (xlabel = "cycle length (min)", ylabel = "cycles")
+    (xlabel = "cycle length", ylabel = "cycles")
 
 function Makie.plot!(p::CycleLengthPlot)
     map!(p.attributes, [:cyclelengths, :edges], [:centres, :counts, :widths, :median]) do c, edges

@@ -44,8 +44,9 @@ surrogate columns into null, band and p-value.
 - **Per-frame fields stay aligned with the input.** `phase[t][i]` is the agent in row `i` of
   input frame `t`; nothing reorders rows. The PhysiCell extension sorts rows by ID once, before
   the array method.
-- **Physical units in the API.** Band, `trim`, `minlength` and `dt` are minutes; speeds are
-  position units per minute. `fs` is always passed to DSP.
+- **One time unit, the user's.** Band, `trim`, `minlength` and `dt` share whatever unit the
+  input uses; no unit is assumed. Speeds are position units per that unit. `fs` is always
+  passed to DSP.
 - **Scales have no defaults:** `band`, `dr`, `rmax`, `radii`, `r`.
 - **Sign conventions:** φ = 0 at peaks of the band-passed signal; direction is the angle of −∇φ;
   a wave moving +y reads +90°.

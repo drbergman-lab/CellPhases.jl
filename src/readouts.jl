@@ -15,7 +15,7 @@ end
 
 Returned by [`cycleLengths`](@ref).
 
-- `lengths`: minutes between successive upward crossings of φ = 0 (successive peaks).
+- `lengths`: time between successive upward crossings of φ = 0 (successive peaks).
 - `ids`: the agent each cycle belongs to.
 """
 struct CycleLengths{I}
@@ -25,7 +25,7 @@ end
 
 Base.show(io::IO, ::MIME"text/plain", c::CycleLengths) =
     print(io, "CycleLengths: $(length(c.lengths)) cycles from $(length(unique(c.ids))) agents",
-          isempty(c.lengths) ? "" : ", median $(round(median(c.lengths); sigdigits = 4)) min")
+          isempty(c.lengths) ? "" : ", median $(round(median(c.lengths); sigdigits = 4))")
 
 """
     cycleLengths(p::PhaseResult) -> CycleLengths

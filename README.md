@@ -7,10 +7,10 @@ their direction and speed.
 ```julia
 using CellPhases
 
-# per-frame positions, values and IDs, frames dt minutes apart
-p = cellPhases(positions, values, ids; dt = 10, band = (100, 300))   # band: periods in minutes
+# per-frame positions, values and IDs, frames dt apart
+p = cellPhases(positions, values, ids; dt = 10, band = (100, 300))   # band: periods, same time unit as dt
 
-cycleLengths(p)                                  # minutes between successive peaks
+cycleLengths(p)                                  # time between successive peaks
 phaseCoherence(p; dr = 5, rmax = 80)             # ⟨cos Δφ⟩ by distance, with a time-shift null
 orderParameter(p; radii = [10, 20, 40])          # local synchrony R, with its null
 w = phaseWaves(p; r = 30)                        # local wave direction and speed

@@ -38,7 +38,7 @@ rad2deg(angle(mean(cis.(w.direction[good])))), cleanShare(w)
 
 !!! tierbrief
     `speed = ω / |∇φ|`, with `ω` the agent's own phase advance to the next frame, in radians per
-    minute. Speeds are in position units per minute, relative to the agents.
+    time unit of `dt`. Speeds are in position units per that time unit, relative to the agents.
 
 !!! tierfull
     On a moving front the phase is constant. A point moving `c·dt` along the direction of travel
@@ -50,7 +50,7 @@ rad2deg(angle(mean(cis.(w.direction[good])))), cleanShare(w)
     the agents' own motion along the wave.
 
 ```@example waves
-60 * median(filter(!isnan, w.speed[good]))     # per hour; the true speed is 30
+median(filter(!isnan, w.speed[good]))     # the true speed is 0.5
 ```
 
 !!! tierjournal "2026-10-15 — Speeds relative to the agents"

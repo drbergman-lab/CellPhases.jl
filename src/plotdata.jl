@@ -12,7 +12,7 @@ proportional to the number of fits. Fields:
 
 - `wedges`: one closed polygon per wedge, a vector of `(x, y)` tuples starting at the origin.
 - `lo`, `share`: each wedge's start angle (degrees) and its share of fits (%).
-- `speed`: median speed per wedge (position units per minute; `NaN` for an empty wedge).
+- `speed`: median speed per wedge (position units per time unit; `NaN` for an empty wedge).
 - `rings`: `(radius, label)` reference circles at the shares in `rings`; `labelangle`: the
   centre of the shortest wedge, where ring labels least overlap the wedges.
 - `rlim`: radius of the outermost ring or wedge.
@@ -178,7 +178,7 @@ end
 """
     traceData(p::PhaseResult, id) -> (; time, value, phase, amplitude, signal)
 
-One agent's trace over every frame it appears in: `time` (minutes from the first frame), the input
+One agent's trace over every frame it appears in: `time` (from the first frame, in the unit of `dt`), the input
 `value`, its `phase` and `amplitude` (`NaN` outside its tracks), and the band-passed `signal`
 `amplitude·cos(phase)`.
 

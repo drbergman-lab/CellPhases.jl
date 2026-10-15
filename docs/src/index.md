@@ -23,8 +23,8 @@ measure how those phases relate in space.
 ```@example index
 using CellPhases, Random
 
-# toy data: 400 slowly moving agents carrying a wave of period 180 min that travels
-# +y at 0.5 µm/min (30 µm/h)
+# toy data: 400 slowly moving agents carrying a wave of period 180 that travels +y at
+# 0.5 position units per time unit; frames 10 time units apart
 field = agentField(; n = 400, L = 300.0, nframes = 200, step = 0.5, rng = Xoshiro(1))
 v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 90,
               rng = Xoshiro(2))
@@ -48,7 +48,7 @@ phaseCoherence(p; dr = 10, rmax = 60, frames = 1:4:200, rng = Xoshiro(3))
 ```@example index
 w = phaseWaves(p; r = 30, frames = 1:4:200)
 rose = roseData(w)
-(direction = rose.meandirection, speed_per_hour = 60 * rose.speed[argmax(rose.share)],
+(direction = rose.meandirection, speed = rose.speed[argmax(rose.share)],
  clean_percent = rose.clean)
 ```
 

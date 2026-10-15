@@ -218,7 +218,7 @@ end
     @test rose.lo[argmax(rose.share)] == 80
     @test rose.meandirection ≈ 90 atol = 2
     @test rose.resultant > 0.95
-    @test 60 * rose.speed[argmax(rose.share)] ≈ 30 rtol = 0.05
+    @test rose.speed[argmax(rose.share)] ≈ 0.5 rtol = 0.05
     @test rose.rings[1] == (sqrt(5.0), "5%")
     @test_throws ArgumentError roseData(w; bin = 7)
 

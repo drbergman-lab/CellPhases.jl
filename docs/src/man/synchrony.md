@@ -23,7 +23,7 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
     each track as a whole keeps all of that and destroys only the alignment between agents.
 
     **Why not shuffle phases among agents within each frame?** That keeps the mean right but
-    makes the null band far too narrow: frames 10 minutes apart are nearly identical, so the
+    makes the null band far too narrow: consecutive frames are nearly identical, so the
     shuffles from different frames are not independent, and p-values come out much too small.
 
     `phaseCoherence` and `orderParameter` draw `nsurrogates` surrogates (19 by default, so the

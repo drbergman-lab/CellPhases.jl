@@ -11,8 +11,9 @@ Mistakes that were made once while developing this analysis, and what guards aga
     Without the sampling rate, DSP.jl reads cutoffs as fractions of the Nyquist frequency. A
     prototype filter passed 200–600 minutes instead of 100–300, suppressed the real rhythm, and
     produced a spurious "upward wave". Pure-sine tests missed it, because a single frequency
-    keeps its phase when attenuated. `bandpassFilter` takes the band in minutes and always passes
-    the sampling rate; the tests pin the half-power points and use a pulse train.
+    keeps its phase when attenuated. `bandpassFilter` takes the band as periods in the unit of
+    `dt` and always passes the sampling rate; the tests pin the half-power points and use a
+    pulse train.
 
 **Phase wrapping at large radius.**
 
@@ -30,7 +31,7 @@ Mistakes that were made once while developing this analysis, and what guards aga
 **Raw bursty signals.**
 
 !!! tierfull
-    A bursty signal decorrelates within tens of minutes through bursts that do not travel. Analyse
+    A bursty signal decorrelates within a fraction of a cycle through bursts that do not travel. Analyse
     the band-passed oscillation for waves, not the raw value.
 
 **Selection by fit quality.**

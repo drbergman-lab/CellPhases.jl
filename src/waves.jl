@@ -10,9 +10,9 @@ Returned by [`phaseWaves`](@ref). One entry per agent-frame with enough neighbou
 - `gradient`: the fitted local phase gradient ∇φ (radians per position unit).
 - `r2`: the fit's R²; low values mean no single plane wave explains the neighbours.
 - `direction`: the direction of travel, the angle of −∇φ in radians (0 = +x, π/2 = +y).
-- `omega`: the agent's own phase advance to the next frame, radians per minute; `NaN` when it has
+- `omega`: the agent's own phase advance to the next frame, radians per time unit of `dt`; `NaN` when it has
   no phase in the next frame.
-- `speed`: `omega / |∇φ|`, position units per minute, relative to the agents; `NaN` where `omega`
+- `speed`: `omega / |∇φ|`, position units per time unit, relative to the agents; `NaN` where `omega`
   is missing or not positive.
 - `r`, `minneighbours`: the settings.
 

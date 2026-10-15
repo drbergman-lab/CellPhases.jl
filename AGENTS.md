@@ -33,8 +33,9 @@ The docs build needs at least one commit (Documenter reads `HEAD`), not a remote
 
 ## Invariants
 
-- **Physical units only.** `band = (pmin, pmax)` are periods and `dt` the frame interval, both
-  required, in minutes; `trim` and `minlength` in minutes; speeds in position units per minute.
+- **Physical units, one time unit, never assumed.** `band = (pmin, pmax)` are periods and `dt`
+  the frame interval, both required, in one time unit the user chooses; `trim`, `minlength`,
+  cycle lengths and speeds (position units per time unit) follow it. No unit is named anywhere.
   `bandpassFilter` always passes `fs = 1/dt` to DSP: without it DSP reads cutoffs as fractions
   of Nyquist (this happened once and produced a spurious result). The `filter` testset measures
   the realised response at `pmin`, `pmax` and mid-band for four frame intervals; keep it.

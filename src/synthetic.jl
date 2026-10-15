@@ -38,7 +38,7 @@ _reflect(c, L) = (c = mod(c, 2L); c > L ? 2L - c : c)
               rng = Random.default_rng())
 
 Values of a plane wave `exp(baseline + cos(ωt − k·x) + noise·ε)` at the given per-frame positions
-(2D): period `period` minutes, travelling at `speed` position units per minute in `direction`
+(2D): period `period`, travelling at `speed` position units per time unit in `direction`
 degrees (0 = +x, 90 = +y). Frame `t` is at time `(t − 1)·dt`; ε is standard normal noise.
 
 The phase [`cellPhases`](@ref) returns is `ωt − k·x`, so φ = 0 at the wave's peaks.
@@ -67,7 +67,7 @@ end
                rng = Random.default_rng())
 
 Pulse-like values for the agents in per-frame `ids`: each agent fires a Gaussian pulse of
-standard deviation `width` minutes once per cycle, on top of `baseline`, with multiplicative
+standard deviation `width` once per cycle, on top of `baseline`, with multiplicative
 log-normal noise of SD `noise`. Each agent's period is `period·(1 + jitter·ε)` and its first
 pulse is at a random time, so agents are not in step.
 
@@ -101,14 +101,14 @@ end
     oscillatorField(positions, ids; dt, period, correlationlength = 0.0, phasesd = π,
                     diffusion = 0.0, noise = 0.3, baseline = 1.0, rng = Random.default_rng())
 
-Oscillators sharing one `period` (minutes) whose phase offsets are spatially correlated:
+Oscillators sharing one `period` whose phase offsets are spatially correlated:
 `exp(baseline + cos(ωt + θᵢ + ψᵢ(t)) + noise·ε)`.
 
 - `θᵢ` is set from the agent's first position. With `correlationlength = 0` it is uniform and
   independent between agents (no coherence at any distance). Otherwise it is a Gaussian random
   field with standard deviation `phasesd` and covariance `exp(−d²/2ℓ²)`, `ℓ = correlationlength`,
   so the expected phase coherence at distance `d` is `exp(−phasesd²(1 − exp(−d²/2ℓ²)))`.
-- `ψᵢ(t)` is a random walk with variance `diffusion` rad² per minute: phase noise that slowly
+- `ψᵢ(t)` is a random walk with variance `diffusion` rad² per time unit: phase noise that slowly
   breaks the alignment.
 
 # Examples

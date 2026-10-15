@@ -104,7 +104,7 @@ end
 
 @recipe function f(c::CycleLengths; edges = nothing)
     d = cycleLengthData(c; edges)
-    xguide --> "cycle length (min)"
+    xguide --> "cycle length"
     yguide --> "cycles"
     legend --> false
     @series begin
@@ -162,7 +162,7 @@ end
             subplot := 2
             seriestype := :scatter
             markersize := 2
-            xguide := "time (min)"
+            xguide := "time"
             yguide := "phase"
             ylims := (-π, π)
             d.time, d.phase

@@ -15,8 +15,8 @@ field = agentField(; n = 300, L = 250.0, nframes = 150, step = 0.5, rng = Xoshir
 ## Plane waves: known speed and direction
 
 !!! tierfull
-    `exp(baseline + cos(ωt − k·x) + noise·ε)`, travelling at `speed` position units per minute in
-    `direction` degrees. The phase `cellPhases` should return is `ωt − k·x`, which is what the
+    `exp(baseline + cos(ωt − k·x) + noise·ε)`, travelling at `speed` position units per time
+    unit in `direction` degrees. The phase `cellPhases` should return is `ωt − k·x`, which is what the
     sign-convention tests check.
 
 ```@example synthetic

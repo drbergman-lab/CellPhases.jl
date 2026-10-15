@@ -14,18 +14,20 @@ correlation peak does not drift, belong in analysis scripts.
 
 *From [`man/phases.md`](../man/phases.md)*
 
-## 2026-10-15 — Physical units only; fs always passed; band required
+## 2026-10-15 — One time unit, the user's; fs always passed; band required
 
-Decided: the API takes the band as periods `(pmin, pmax)` in minutes, `trim` and `minlength`
-in minutes, and `dt` in minutes per frame; frames appear only in `frames` selections and in
-results. `bandpassFilter` converts to cycles per minute and always passes `fs = 1/dt`.
+Decided: the band is given as periods `(pmin, pmax)`, together with `trim`, `minlength` and
+the frame interval `dt`, all in one time unit the user chooses; no unit is named or assumed.
+Frames appear only in `frames` selections and in results. `bandpassFilter` converts to cycles
+per time unit and always passes `fs = 1/dt`.
 `band` has no default (it is a time scale of the system studied); `order = 3` does. The
 filter test measures the realised response at `pmin`, `pmax` and mid-band for four frame
 intervals.
 Why: the prototype once built the filter without `fs`; DSP read the cutoffs as fractions of
-Nyquist and passed about 200–600 minutes instead of 100–300. The spurious "upward wave" it produced
-survived every pure-sine check. Taking minutes everywhere leaves no frame-based number for a
-user to mistranslate.
+Nyquist and passed periods of about 200–600 minutes instead of 100–300. The spurious
+"upward wave" it produced survived every pure-sine check. The mistake was mixing units (normalised frequency against
+periods), not the choice of unit; requiring everything in the unit of `dt` leaves nothing to
+mistranslate.
 
 *From [`man/phases.md`](../man/phases.md)*
 
@@ -41,12 +43,12 @@ considered and left out of the first version.
 ## 2026-10-15 — trim and minlength derived from the band
 
 Decided: `trim` defaults to the filter's memory and `minlength` to `2trim + 2·band[2]`, both
-in minutes.
+in the unit of `dt`.
 Why: the prototype fixed 18 and 90 frames for 10-minute frames and a 100–300-minute band.
 Both are really properties of the filter: 18 frames was "about the filter's memory", and 90
 frames "five cycles plus trim". Deriving them keeps them right when the band or the frame
-interval changes. For the prototype's settings the derived values are 180 minutes (18
-frames, as before) and 960 minutes (96 frames rather than 90).
+interval changes. For the prototype's settings the derived values are 18 frames, as
+before, and 96 frames rather than 90.
 
 *From [`man/phases.md`](../man/phases.md)*
 
