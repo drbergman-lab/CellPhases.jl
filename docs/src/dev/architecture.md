@@ -6,7 +6,7 @@
 |:--|:--|
 | `src/CellPhases.jl` | Module, imports, exports, includes. |
 | `src/phases.jl` | Steps 1–3: `Track`, `PhaseResult`, `bandpassFilter`, `cellPhases` (traces, filter, Hilbert phase, trim, mask). |
-| `src/surrogates.jl` | `timeShift` and `_shifted`, the time-shift null. |
+| `src/time_shift.jl` | `timeShift` and `_shifted`, the time-shift null. |
 | `src/readouts.jl` | `cycleLengths`, `phaseValueCheck`, `phaseCoherence`, `orderParameter`, their result types, and the null statistics. |
 | `src/waves.jl` | `phaseWaves`, `PhaseWaves`, `cleanShare`, the local plane fit. |
 | `src/replicates.jl` | `Replicates`, `replicateSpread`, and the readout methods for vectors of results with their pooling. |

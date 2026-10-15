@@ -31,7 +31,7 @@ export roseplot, roseplot!, coherenceplot, coherenceplot!, orderparameterplot,
        portraitplot, portraitplot!
 
 include("phases.jl")
-include("surrogates.jl")
+include("time_shift.jl")
 include("readouts.jl")
 include("waves.jl")
 include("replicates.jl")
