@@ -128,7 +128,7 @@ julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direct
 
 julia> c = phaseValueCheck(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)));
 
-julia> c.r2 > 0.8, abs(rad2deg(c.peak)) < 5
+julia> c.r2 > 0.7, abs(rad2deg(c.peak)) < 5
 (true, true)
 ```
 """

@@ -39,10 +39,10 @@ and `ids[t]`, one entry per agent present in frame `t`. IDs can be of any type.
     slowest cycles in the band remain. With `dt = 10` and `band = (100, 300)` that is 960,
     96 frames.
 
-    The trace is transformed (`transform = log` by default) and its mean subtracted. The log
-    keeps bursts from dominating a heavy-tailed signal: a jump from 2 to 20 counts the same as
-    one from 1 to 10. With `log`, values must be positive; pass `transform = identity` for a
-    signal that can be zero or negative.
+    The trace is passed through `transform` (`identity` by default) and its mean subtracted.
+    For a heavy-tailed, bursty signal, `transform = log` keeps bursts from dominating: a jump
+    from 2 to 20 then counts the same as one from 1 to 10. With `log`, values must be positive.
+    The transform also sets what `phaseValueCheck` compares the phase with.
 
 Each kept piece is a [`Track`](@ref):
 
@@ -179,6 +179,12 @@ p.trim, p.minlength
 !!! tierdev
     `hilbert` is `DSP.hilbert` (FFT, zero the negative frequencies, double the positive, inverse
     FFT). The trim default comes from `_filtermemory(filter)`, `−1/log(max |pole|)` frames.
+
+!!! tierjournal "2026-10-15 — No transform by default"
+    Decided: `transform = identity` by default; `log` is opt-in.
+    Why: the prototype logged notch because notch is heavy-tailed, a property of that signal,
+    not of the method. A log default would also make `cellPhases` fail on any value ≤ 0. Like
+    the band, it is the user's modelling choice.
 
 !!! tierjournal "2026-10-15 — Masking off by default"
     Decided: low-amplitude masking is opt-in (`mask = q`, per-track amplitude quantile).

@@ -1,6 +1,6 @@
 # Synthetic data with known answers: agent geometry, plane waves, pulse trains and an oscillator
 # field. Every generator returns per-frame vectors in the shape `cellPhases` takes. Values are
-# positive so the default `log` transform applies.
+# positive, so `transform = log` also applies.
 
 """
     agentField(; n, L, nframes, step = 0.0, rng = Random.default_rng()) -> (; positions, ids)

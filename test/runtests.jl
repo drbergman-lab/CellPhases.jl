@@ -65,8 +65,8 @@ end
     @test_throws ArgumentError cellPhases(pos, vv, [fill(1, length(i)) for i in ids]; dt = DT, band = BAND)
     @test_throws DimensionMismatch cellPhases(pos[1:3], vv, ids; dt = DT, band = BAND)
     neg = deepcopy(v); neg[5][3] = -1.0
-    @test_throws ArgumentError phases(neg)
-    @test phases(neg; transform = identity) isa PhaseResult
+    @test phases(neg) isa PhaseResult                                # identity by default
+    @test_throws ArgumentError phases(neg; transform = log)
     @test_throws ArgumentError phases(v; mask = 1.0)
     @test_throws ArgumentError phases(v; minlength = 500)         # below 2pmax
     @test_logs (:warn, r"no agent can receive a phase") cellPhases(
@@ -80,11 +80,11 @@ end
 end
 
 @testset "sign conventions" begin
-    # noise-free wave: the phase is ωt − k·x, so φ = 0 at the peaks
+    # noise-free wave: the phase of log(value) is ωt − k·x, so φ = 0 at the peaks
     T, c = 180.0, 0.5
     still = agentField(; n = 200, L = 200.0, nframes = 200, rng = Xoshiro(2))
     v = planeWave(still.positions; dt = DT, period = T, speed = c, direction = 90, noise = 0)
-    p = cellPhases(still.positions, v, still.ids; dt = DT, band = BAND)
+    p = cellPhases(still.positions, v, still.ids; dt = DT, band = BAND, transform = log)
     ω, k = 2π / T, 2π / T / c
     t = 100
     truth = [ω * (t - 1) * DT - k * x[2] for x in still.positions[t]]
@@ -133,7 +133,8 @@ end
 
 @testset "phase tracks the value" begin
     v = planeWave(FIELD.positions; dt = DT, period = 180, speed = 0.5, direction = 0, rng = Xoshiro(5))
-    c = phaseValueCheck(phases(v))
+    c = phaseValueCheck(phases(v; transform = log))   # planeWave is log-normal around a cosine
+    @test phaseValueCheck(phases(v)).r2 > 0.7         # on the raw scale the cosine is skewed
     @test c.r2 > 0.8                     # noise SD 0.3 against a unit cosine
     @test abs(rad2deg(c.peak)) < 5
     @test length(c.centers) == 36
@@ -189,7 +190,8 @@ end
 
 @testset "replicates" begin
     runs = [cellPhases(f.positions, planeWave(f.positions; dt = DT, period = 180, speed = 0.5,
-                                              direction = 0, rng = Xoshiro(k)), f.ids; dt = DT, band = BAND)
+                                              direction = 0, rng = Xoshiro(k)), f.ids; dt = DT, band = BAND,
+                       transform = log)
             for (k, f) in enumerate(agentField(; n = 150, L = 150.0, nframes = 150, rng = Xoshiro(k))
                                     for k in 1:3)]
     c = phaseCoherence(runs; dr = 10, rmax = 40, frames = 1:4:150, nsurrogates = 5, rng = Xoshiro(1))

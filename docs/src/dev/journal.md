@@ -31,6 +31,15 @@ mistranslate.
 
 *From [`man/phases.md`](../man/phases.md)*
 
+## 2026-10-15 — No transform by default
+
+Decided: `transform = identity` by default; `log` is opt-in.
+Why: the prototype logged notch because notch is heavy-tailed, a property of that signal,
+not of the method. A log default would also make `cellPhases` fail on any value ≤ 0. Like
+the band, it is the user's modelling choice.
+
+*From [`man/phases.md`](../man/phases.md)*
+
 ## 2026-10-15 — Masking off by default
 
 Decided: low-amplitude masking is opt-in (`mask = q`, per-track amplitude quantile).

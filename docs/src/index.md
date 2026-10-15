@@ -14,7 +14,7 @@ measure how those phases relate in space.
     neither well, because opposite local waves cancel when pooled. Following each cell's own phase
     keeps the local structure.
 
-    The pipeline per agent: transform the trace (log by default), band-pass it to the rhythm of
+    The pipeline per agent: optionally transform the trace (a log, say), band-pass it to the rhythm of
     interest, and take the angle of its analytic signal (Hilbert transform). The readouts then
     compare phases across agents: coherence with distance, a local order parameter, and local
     phase-gradient waves with their direction and speed. Each is compared with a null from

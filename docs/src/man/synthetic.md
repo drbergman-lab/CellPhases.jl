@@ -5,7 +5,7 @@ tests.
 
 !!! tierbrief
     `agentField` makes positions and IDs; `planeWave`, `pulseTrain` and `oscillatorField` make
-    values on them. All values are positive, so the default `log` transform applies.
+    values on them. All values are positive, so `transform = log` also applies.
 
 ```@example synthetic
 using CellPhases, Random

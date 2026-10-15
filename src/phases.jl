@@ -119,7 +119,7 @@ _filtermemory(f) = -1 / log(maximum(abs, f.p))
 
 """
     cellPhases(positions, values, ids; dt, band, order = 3, trim = nothing, minlength = nothing,
-               transform = log, mask = 0.0) -> PhaseResult
+               transform = identity, mask = 0.0) -> PhaseResult
 
 Give every tracked agent a phase for its oscillating value, frame by frame.
 
@@ -128,7 +128,7 @@ one entry per agent present in frame `t`. Frames must be equally spaced, `dt` ap
 (`dt`, `band`, `trim`, `minlength`) are in one time unit of your choice.
 
 For each agent, consecutive frames form a run; runs of at least `minlength` are
-transformed (`log` by default), mean-subtracted, band-passed (zero-phase Butterworth of `order`,
+transformed by `transform` (`identity` by default), mean-subtracted, band-passed (zero-phase Butterworth of `order`,
 periods `band = (pmin, pmax)`; see [`bandpassFilter`](@ref)), and
 Hilbert-transformed. A time `trim` is dropped from each end of the run, where the filter has not
 settled.
@@ -160,7 +160,7 @@ julia> length(p.tracks), p.trim
 """
 function cellPhases(positions::AbstractVector, values::AbstractVector, ids::AbstractVector;
                     dt::Real, band, order::Integer = 3, trim::Union{Real,Nothing} = nothing,
-                    minlength::Union{Real,Nothing} = nothing, transform = log, mask::Real = 0.0)
+                    minlength::Union{Real,Nothing} = nothing, transform = identity, mask::Real = 0.0)
     nT = length(values)
     length(positions) == nT == length(ids) || throw(DimensionMismatch(
         "positions, values and ids must have one entry per frame; got $(length(positions)), $nT, $(length(ids))"))
@@ -245,7 +245,7 @@ end
 
 function _transform(transform, v, id)
     transform === log && any(<=(0), v) && throw(ArgumentError(
-        "agent $(repr(id)) has a value ≤ 0, which `log` cannot take; pass a different `transform` " *
+        "agent $(repr(id)) has a value ≤ 0, which `log` cannot take; use a different `transform` " *
         "(e.g. `identity`, or `x -> log(x + c)`)"))
     x = Float64.(transform.(v))
     all(isfinite, x) || throw(ArgumentError("the transform gave a non-finite value for agent $(repr(id))"))
