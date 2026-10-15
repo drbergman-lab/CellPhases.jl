@@ -205,8 +205,10 @@ How far apart agents can be and still be in step: the mean `cos(φᵢ − φⱼ)
 the same frame, binned by distance (bins of width `dr` centred on `0, dr, …, rmax`), with the same
 quantity on [`timeShift`](@ref) surrogates as the null.
 
-`frames` picks which frames to pool; consecutive frames are nearly identical, so every second or
-fourth frame gives almost the same answer for less work.
+`frames` picks which frames to pool. Phases are band-passed, so an agent's phase moves by about
+`2π·dt/period` per frame; when the band's shortest period spans many frames, consecutive frames
+are strongly correlated and a sparser selection (`1:2:n`, `1:4:n`) costs less for little loss.
+Compare two selections to check that on your data.
 
 # Examples
 ```jldoctest

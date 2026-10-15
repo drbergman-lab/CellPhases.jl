@@ -23,8 +23,12 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
     each track as a whole keeps all of that and destroys only the alignment between agents.
 
     **Why not shuffle phases among agents within each frame?** That keeps the mean right but
-    makes the null band far too narrow: consecutive frames are nearly identical, so the
-    shuffles from different frames are not independent, and p-values come out much too small.
+    makes the null band far too narrow. A fresh shuffle in each frame is independent of the
+    shuffle in the next, so averaging over frames shrinks its spread as if every frame were an
+    independent observation. The real phases are not: they are band-passed, so each agent's
+    phase moves only about `2π·dt/period` per frame and consecutive frames are correlated. The
+    observed value therefore varies much more than the shuffled one, and p-values come out much
+    too small.
 
     `PhaseCoherence` and `OrderParameter` draw `nsurrogates` surrogates (19 by default, so the
     smallest p-value is 0.05) and report their mean as `null`, their 2.5–97.5% range as
@@ -35,8 +39,8 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
     Decided: the null for coherence and the order parameter is the time-shift surrogate, drawn
     per track.
     Rejected: the prototype's per-frame shuffle of phases among agents. Its mean is a fine
-    baseline to subtract, but consecutive frames are nearly identical, so it treats hundreds of
-    near-copies as independent draws and its band is far too narrow for p-values.
+    baseline to subtract, but its shuffles are independent from frame to frame while the real
+    phases are correlated across frames, so its band is far too narrow for p-values.
 
 ## Coherence with distance
 
@@ -50,8 +54,11 @@ p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
     the closest pairs; in PhysiCell these are compressed or newly divided cells and are real.
 
     `excess = coherence − null` is the coherence due to proximity. `dr` and `rmax` are in the
-    positions' units and have no defaults. Pass `frames = 1:2:n` or sparser to save time;
-    neighbouring frames carry almost the same information.
+    positions' units and have no defaults. `frames` selects which frames to pool. Because the
+    phases are band-passed, consecutive frames are correlated when the band's shortest period
+    spans many frames (with `dt = 10` and `band = (100, 300)`, a phase moves at most about 36°
+    per frame), so `frames = 1:2:n` or sparser saves time for little loss. Compare two
+    selections to check.
 
 ```@example sync
 c = PhaseCoherence(p; dr = 10, rmax = 80, frames = 1:4:200, rng = Xoshiro(3))

@@ -97,8 +97,8 @@ check with SpaceTimeCorrelations) and stays in analysis scripts.
 Decided: the null for coherence and the order parameter is the time-shift surrogate, drawn
 per track.
 Rejected: the prototype's per-frame shuffle of phases among agents. Its mean is a fine
-baseline to subtract, but consecutive frames are nearly identical, so it treats hundreds of
-near-copies as independent draws and its band is far too narrow for p-values.
+baseline to subtract, but its shuffles are independent from frame to frame while the real
+phases are correlated across frames, so its band is far too narrow for p-values.
 
 *From [`man/synchrony.md`](../man/synchrony.md)*
 
