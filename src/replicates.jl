@@ -66,7 +66,7 @@ end
 function phaseValueCheck(ps::_Runs; nbins::Integer = 36, kwargs...)
     rs = [phaseValueCheck(p; nbins, kwargs...) for p in ps]
     return Replicates(rs, _phasevalue(reduce(vcat, (r.phase for r in rs)),
-                                      reduce(vcat, (r.z for r in rs)), nbins))
+                                      reduce(vcat, (r.zscore for r in rs)), nbins))
 end
 
 function phaseWaves(ps::_Runs; kwargs...)

@@ -135,11 +135,11 @@ function cycleLengthData(c::CycleLengths; edges = nothing)
 end
 
 """
-    phaseValueData(v::PhaseValueCheck; zedges = range(-2.5, 3.5; length = 41))
-        -> (; phaseedges, zedges, density, centers, median, q25, q75, r2, peak)
+    phaseValueData(v::PhaseValueCheck; zscoreedges = range(-2.5, 3.5; length = 41))
+        -> (; phaseedges, zscoreedges, density, centers, median, q25, q75, r2, peak)
 
 The value against phase as a density: `density[i, j]` is the share of agent-frames in phase bin
-`i` whose z-scored value lies in `zedges[j:j+1]` (each phase column sums to at most 1), plus the
+`i` whose z-scored value lies in `zscoreedges[j:j+1]` (each phase column sums to at most 1), plus the
 binned median and quartiles from [`phaseValueCheck`](@ref).
 
 # Examples
@@ -158,20 +158,20 @@ julia> size(d.density), round(maximum(sum(d.density; dims = 2)); digits = 2)   #
 ((36, 40), 1.0)
 ```
 """
-function phaseValueData(v::PhaseValueCheck; zedges = range(-2.5, 3.5; length = 41))
+function phaseValueData(v::PhaseValueCheck; zscoreedges = range(-2.5, 3.5; length = 41))
     nb = length(v.centers)
     pe = collect(range(-π, π; length = nb + 1))
-    ze = Float64.(collect(zedges))
+    ze = Float64.(collect(zscoreedges))
     H = zeros(nb, length(ze) - 1)
     colsum = zeros(Int, nb)
-    for (φ, z) in zip(v.phase, v.z)
+    for (φ, zs) in zip(v.phase, v.zscore)
         i = clamp(floor(Int, (φ + π) / (2π / nb)) + 1, 1, nb)
         colsum[i] += 1
-        j = searchsortedlast(ze, z)
+        j = searchsortedlast(ze, zs)
         1 <= j < length(ze) && (H[i, j] += 1)
     end
     density = H ./ max.(colsum, 1)
-    return (phaseedges = pe, zedges = ze, density = density, centers = v.centers, median = v.median,
+    return (phaseedges = pe, zscoreedges = ze, density = density, centers = v.centers, median = v.median,
             q25 = v.q25, q75 = v.q75, r2 = v.r2, peak = v.peak)
 end
 

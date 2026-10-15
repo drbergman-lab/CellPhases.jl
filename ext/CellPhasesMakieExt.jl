@@ -167,11 +167,11 @@ Makie.preferred_axis_attributes(::Type{<:Axis}, ::PhaseValuePlot) =
      xticks = ([-π, -π / 2, 0, π / 2, π], ["−π", "−π/2", "0", "π/2", "π"]))
 
 function Makie.plot!(p::PhaseValuePlot)
-    map!(p.attributes, :check, [:φedges, :zedges, :density, :centers, :median, :q25, :q75]) do v
+    map!(p.attributes, :check, [:φedges, :zscoreedges, :density, :centers, :median, :q25, :q75]) do v
         d = phaseValueData(v)
-        return d.phaseedges, d.zedges, d.density, d.centers, d.median, d.q25, d.q75
+        return d.phaseedges, d.zscoreedges, d.density, d.centers, d.median, d.q25, d.q75
     end
-    heatmap!(p, p.φedges, p.zedges, p.density; colormap = p.colormap)
+    heatmap!(p, p.φedges, p.zscoreedges, p.density; colormap = p.colormap)
     band!(p, p.centers, p.q25, p.q75; color = (INK, 0.12))
     lines!(p, p.centers, p.median; color = INK, linewidth = 2.5)
     return p

@@ -85,15 +85,16 @@ end
 
 Returned by [`phaseValueCheck`](@ref).
 
-- `phase`, `z`: every agent-frame's phase and its transformed value, z-scored within its track.
-- `r2`: share of the variance of `z` explained by `cos φ` and `sin φ`.
-- `peak`: the phase at which the fitted `z` peaks (0 when the value peaks with the band-passed
+- `phase`, `zscore`: every agent-frame's phase and its transformed value, z-scored within its
+  track.
+- `r2`: share of the variance of `zscore` explained by `cos φ` and `sin φ`.
+- `peak`: the phase at which the fitted `zscore` peaks (0 when the value peaks with the band-passed
   signal).
-- `centers`, `median`, `q25`, `q75`: `z` binned by phase.
+- `centers`, `median`, `q25`, `q75`: `zscore` binned by phase.
 """
 struct PhaseValueCheck
     phase::Vector{Float64}
-    z::Vector{Float64}
+    zscore::Vector{Float64}
     r2::Float64
     peak::Float64
     centers::Vector{Float64}
@@ -103,7 +104,7 @@ struct PhaseValueCheck
 end
 
 Base.show(io::IO, ::MIME"text/plain", c::PhaseValueCheck) =
-    print(io, "PhaseValueCheck: $(length(c.z)) agent-frames; phase explains ",
+    print(io, "PhaseValueCheck: $(length(c.zscore)) agent-frames; phase explains ",
           "$(round(100c.r2; digits = 1))% of the variance; peak at φ = $(round(rad2deg(c.peak); digits = 1))°")
 
 """
@@ -133,32 +134,32 @@ julia> c.r2 > 0.8, abs(rad2deg(c.peak)) < 5
 """
 function phaseValueCheck(p::PhaseResult; nbins::Integer = 36, minframes::Integer = 20)
     φall = Float64[]
-    zall = Float64[]
+    zscores = Float64[]
     for tr in p.tracks
         sel = [(t, r) for (t, r) in zip(tr.frames, tr.rows) if !isnan(p.phase[t][r])]
         length(sel) >= minframes || continue
         x = Float64.(p.transform.([p.values[t][r] for (t, r) in sel]))
         σ = std(x)
         σ > 0 || continue
-        append!(zall, (x .- mean(x)) ./ σ)
+        append!(zscores, (x .- mean(x)) ./ σ)
         append!(φall, [p.phase[t][r] for (t, r) in sel])
     end
-    return _phasevalue(φall, zall, nbins)
+    return _phasevalue(φall, zscores, nbins)
 end
 
-function _phasevalue(φ, z, nbins)
+function _phasevalue(φ, zscore, nbins)
     edges = range(-π, π; length = nbins + 1)
     centers = collect((edges[1:end-1] .+ edges[2:end]) ./ 2)
-    if length(z) < 3
+    if length(zscore) < 3
         nanv = fill(NaN, nbins)
-        return PhaseValueCheck(φ, z, NaN, NaN, centers, nanv, copy(nanv), copy(nanv))
+        return PhaseValueCheck(φ, zscore, NaN, NaN, centers, nanv, copy(nanv), copy(nanv))
     end
     X = [ones(length(φ)) cos.(φ) sin.(φ)]
-    β = X \ z
-    r2 = 1 - sum(abs2, z - X * β) / sum(abs2, z .- mean(z))
+    β = X \ zscore
+    r2 = 1 - sum(abs2, zscore - X * β) / sum(abs2, zscore .- mean(zscore))
     bin = clamp.(floor.(Int, (φ .+ π) ./ (2π / nbins)) .+ 1, 1, nbins)
-    stat(f) = [let s = z[bin .== k]; isempty(s) ? NaN : f(s) end for k in 1:nbins]
-    return PhaseValueCheck(φ, z, r2, atan(β[3], β[2]), centers, stat(median),
+    stat(f) = [let s = zscore[bin .== k]; isempty(s) ? NaN : f(s) end for k in 1:nbins]
+    return PhaseValueCheck(φ, zscore, r2, atan(β[3], β[2]), centers, stat(median),
                            stat(s -> quantile(s, 0.25)), stat(s -> quantile(s, 0.75)))
 end
 
@@ -348,19 +349,19 @@ function orderParameter(p::PhaseResult; radii, frames = 1:nframes(p), minagents:
         ok = findall(!isnan, p.phase[t])
         isempty(ok) && continue
         pts = p.positions[t][ok]
-        zs = [cis.(Φ[t][ok]) for Φ in sets]
+        phasors = [cis.(Φ[t][ok]) for Φ in sets]
         tree = KDTree(pts)
         for a in eachindex(pts)
             nb = inrange(tree, pts[a], last(radii))
             d = [norm(pts[b] - pts[a]) for b in nb]
-            for (s, z) in enumerate(zs)
-                isnan(z[a]) && continue
+            for (s, e) in enumerate(phasors)
+                isnan(e[a]) && continue
                 for (j, r) in enumerate(radii)
                     acc = zero(ComplexF64)
                     n = 0
                     for (b, db) in zip(nb, d)
-                        (db <= r && !isnan(z[b])) || continue
-                        acc += z[b]
+                        (db <= r && !isnan(e[b])) || continue
+                        acc += e[b]
                         n += 1
                     end
                     n >= minagents || continue

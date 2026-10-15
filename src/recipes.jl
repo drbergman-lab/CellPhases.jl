@@ -130,7 +130,7 @@ end
         seriestype := :heatmap
         seriescolor --> :blues
         (d.phaseedges[1:end-1] .+ d.phaseedges[2:end]) ./ 2,
-        (d.zedges[1:end-1] .+ d.zedges[2:end]) ./ 2, permutedims(d.density)
+        (d.zscoreedges[1:end-1] .+ d.zscoreedges[2:end]) ./ 2, permutedims(d.density)
     end
     @series begin
         seriestype := :path
