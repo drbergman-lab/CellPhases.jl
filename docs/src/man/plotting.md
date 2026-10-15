@@ -1,6 +1,7 @@
 # Plotting
 
-Each readout has a function that returns plot-ready numbers, and a recipe that draws them.
+Each readout has a function that returns plot-ready numbers, and recipes for Plots.jl and Makie
+that draw them.
 
 !!! tierbrief
     `roseData`, `coherenceData`, `orderParameterData`, `cycleLengthData`, `phaseValueData`,
@@ -14,6 +15,8 @@ Each readout has a function that returns plot-ready numbers, and a recipe that d
     rings at 5% and 10%, labelled along the shortest wedge where they overlap least; and an arrow
     for the mean direction whose length is the mean resultant length `R` times the outer radius.
     Wedges are coloured by median speed.
+
+## Plots.jl
 
 ```@setup plotting
 using Plots
@@ -40,7 +43,44 @@ One agent's trace and phase:
 plot(p, :trace, 7; size = (800, 400))
 ```
 
-The data behind the rose:
+## Makie
+
+With a Makie backend loaded, each readout has a recipe: `roseplot`, `coherenceplot`,
+`orderparameterplot`, `cyclelengthplot`, `phasevalueplot` and `portraitplot`, each with a `!`
+form, and `plot(result)` picks the matching one.
+
+!!! tierbrief
+    The rose recipe sets its own axis: equal aspect, no ticks, grid or spines.
+
+```@example plotting
+using CairoMakie
+CairoMakie.activate!(type = "png")
+fig = Figure(size = (1200, 750))
+roseplot(fig[1, 1], w)
+coherenceplot(fig[1, 2], c)
+orderparameterplot(fig[1, 3], o)
+cyclelengthplot(fig[2, 1], cycleLengths(p))
+phasevalueplot(fig[2, 2], phaseValueCheck(p))
+portraitplot(fig[2, 3], p, 7)
+fig
+```
+
+!!! tierdev
+    The Makie recipes are in `ext/CellPhasesMakieExt.jl`, loaded with Makie; core declares the
+    functions (`src/makie.jl`) so they can be exported and documented. Each recipe computes its
+    inputs from a plot-data function with `map!` on the plot's compute graph and sets its axis
+    through `Makie.preferred_axis_attributes`, which needs Makie 0.24.11 or later.
+
+!!! tierjournal "2026-10-15 — Makie recipes in an extension, not MakieCore"
+    Decided: Makie recipes live in a package extension on Makie; RecipesBase recipes stay in
+    core.
+    Why: the plan was MakieCore recipes in core, but Makie 0.24 folded MakieCore into Makie and
+    no longer depends on it (the last MakieCore, 0.10, pairs with Makie 0.23). Recipes written
+    against MakieCore would be invisible to current Makie. An extension also gets the full
+    Makie API, including `preferred_axis_attributes` for the rose's equal-aspect, undecorated
+    axis.
+
+## The data behind the rose
 
 ```@example plotting
 rose = roseData(w)

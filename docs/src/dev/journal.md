@@ -14,15 +14,27 @@ correlation peak does not drift, belong in analysis scripts.
 
 *From [`man/phases.md`](../man/phases.md)*
 
-## 2026-10-15 — Physical units only; fs always passed
+## 2026-10-15 — Physical units only; fs always passed; band required
 
-Decided: the API takes the band, `trim` and `minlength` in minutes and `dt` in minutes per
-frame; frames appear only in `frames` selections and in results. `bandpassFilter` always
-passes `fs`.
+Decided: the API takes the band as periods `(pmin, pmax)` in minutes, `trim` and `minlength`
+in minutes, and `dt` in minutes per frame; frames appear only in `frames` selections and in
+results. `bandpassFilter` converts to cycles per minute and always passes `fs = 1/dt`.
+`band` has no default (it is a time scale of the system studied); `order = 3` does. The
+filter test measures the realised response at `pmin`, `pmax` and mid-band for four frame
+intervals.
 Why: the prototype once built the filter without `fs`; DSP read the cutoffs as fractions of
-Nyquist and passed 200–600 minutes instead of 100–300. The spurious "upward wave" it produced
+Nyquist and passed about 200–600 minutes instead of 100–300. The spurious "upward wave" it produced
 survived every pure-sine check. Taking minutes everywhere leaves no frame-based number for a
 user to mistranslate.
+
+*From [`man/phases.md`](../man/phases.md)*
+
+## 2026-10-15 — Masking off by default
+
+Decided: low-amplitude masking is opt-in (`mask = q`, per-track amplitude quantile).
+Why: it removes ill-defined phases but biases what remains toward strongly oscillating
+moments; that trade-off is the user's to make. Phase-defect (spiral core) counting was also
+considered and left out of the first version.
 
 *From [`man/phases.md`](../man/phases.md)*
 
@@ -46,6 +58,18 @@ Why: `cellDataSequence` already groups each cell's values by ID across snapshots
 dead cells; a second reader would duplicate it.
 
 *From [`man/physicell.md`](../man/physicell.md)*
+
+## 2026-10-15 — Makie recipes in an extension, not MakieCore
+
+Decided: Makie recipes live in a package extension on Makie; RecipesBase recipes stay in
+core.
+Why: the plan was MakieCore recipes in core, but Makie 0.24 folded MakieCore into Makie and
+no longer depends on it (the last MakieCore, 0.10, pairs with Makie 0.23). Recipes written
+against MakieCore would be invisible to current Makie. An extension also gets the full
+Makie API, including `preferred_axis_attributes` for the rose's equal-aspect, undecorated
+axis.
+
+*From [`man/plotting.md`](../man/plotting.md)*
 
 ## 2026-10-15 — Plot data in core, recipes from it, no packaged composite
 

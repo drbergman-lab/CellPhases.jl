@@ -13,9 +13,12 @@
 | `src/synthetic.jl` | `agentField`, `planeWave`, `pulseTrain`, `oscillatorField`. |
 | `src/plotdata.jl` | `roseData` and the other plot-data functions. |
 | `src/recipes.jl` | RecipesBase recipes, drawn from the plot-data functions. |
+| `src/makie.jl` | Declarations and docstrings of the Makie recipe functions (`roseplot` …). |
+| `ext/CellPhasesMakieExt.jl` | The Makie recipes, their preferred axes, and `plottype` for each result. |
 | `ext/CellPhasesPhysiCellOutputExt.jl` | The `PhysiCellSequence` method: `cellDataSequence`, per-frame layout, then the array method. |
 | `ext/CellPhasesPhysiCellModelManagerExt.jl` | `Simulation`, `Monad`, `Sampling` methods: resolve to output folders and forward. |
 | `test/runtests.jl` | Filter, tracks, sign conventions, plane-wave validation, broadband test, nulls, replicates, plot data and recipes. |
+| `test/makie.jl` | The Makie extension, with Makie alone (no backend). |
 | `test/physicell.jl`, `test/physicell_output.jl` | The PhysiCellOutput extension, on synthetic data written in the PhysiCell output format at test time. |
 
 ## One call, start to finish

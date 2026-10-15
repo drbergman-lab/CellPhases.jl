@@ -7,7 +7,9 @@ Per-agent phase analysis of oscillating values in agent-based model output. The 
 ([`src/readouts.jl`](src/readouts.jl)) and `phaseWaves` ([`src/waves.jl`](src/waves.jl)); each
 also takes a vector of results for replicates ([`src/replicates.jl`](src/replicates.jl)).
 Plot-ready data is in [`src/plotdata.jl`](src/plotdata.jl), Plots recipes in
-[`src/recipes.jl`](src/recipes.jl), synthetic data with known answers in
+[`src/recipes.jl`](src/recipes.jl), Makie recipes in
+[`ext/CellPhasesMakieExt.jl`](ext/CellPhasesMakieExt.jl) (functions declared in
+[`src/makie.jl`](src/makie.jl)), synthetic data with known answers in
 [`src/synthetic.jl`](src/synthetic.jl).
 
 Start with [`docs/src/dev/architecture.md`](docs/src/dev/architecture.md): module map, the data
@@ -31,9 +33,11 @@ The docs build needs at least one commit (Documenter reads `HEAD`), not a remote
 
 ## Invariants
 
-- **Physical units only.** `dt`, `band`, `trim`, `minlength` in minutes; speeds in position
-  units per minute. `bandpassFilter` always passes `fs = 1/dt` to DSP: without it DSP reads
-  cutoffs as fractions of Nyquist (this happened once and produced a spurious result).
+- **Physical units only.** `band = (pmin, pmax)` are periods and `dt` the frame interval, both
+  required, in minutes; `trim` and `minlength` in minutes; speeds in position units per minute.
+  `bandpassFilter` always passes `fs = 1/dt` to DSP: without it DSP reads cutoffs as fractions
+  of Nyquist (this happened once and produced a spurious result). The `filter` testset measures
+  the realised response at `pmin`, `pmax` and mid-band for four frame intervals; keep it.
 - **Scales have no defaults:** `band`, `dr`, `rmax`, `radii`, `r`.
 - **Per-frame fields stay aligned with the input rows.**
 - **Sign conventions:** φ = 0 at peaks; direction = angle of −∇φ; a wave moving +y reads +90°.
@@ -41,14 +45,16 @@ The docs build needs at least one commit (Documenter reads `HEAD`), not a remote
   far too narrow band; do not use it for bands or p-values.
 - **Report the clean-fit share** (`cleanShare`) with any direction or speed summary.
 - **Runtime dependencies:** DSP, LinearAlgebra, NearestNeighbors, Random, RecipesBase,
-  StaticArrays, Statistics. PhysiCellOutput and PhysiCellModelManager are `[weakdeps]` reached
-  through `ext/`. MAT and PhysiCellOutput are test-only.
+  StaticArrays, Statistics. Makie, PhysiCellOutput and PhysiCellModelManager are `[weakdeps]`
+  reached through `ext/`. MAT, Makie and PhysiCellOutput are test-only. MakieCore is not used:
+  Makie 0.24 no longer depends on it.
 - **Extensions are thin adapters** ending in the array method. No second PhysiCell reader:
   PhysiCellOutput's `cellDataSequence` loads the data.
 - **No simulation data in the repo.** PhysiCell test input is generated at test time by
   `test/physicell_output.jl`.
 - **PhysiCellModelManager stays out of the test and docs environments.**
-- **Plot data holds the decisions; recipes only draw.** No packaged multi-panel figure.
+- **Plot data holds the decisions; recipes only draw**, in both Plots and Makie. No packaged
+  multi-panel figure.
 - **Out of scope:** wavelet ridge analysis, cluster/patch tracking, the pooled space-time
   correlation (that is SpaceTimeCorrelations.jl).
 

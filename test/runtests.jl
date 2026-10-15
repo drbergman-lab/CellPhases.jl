@@ -15,18 +15,25 @@ angdiff(a, b) = abs(angle(cis(a - b)))
 @testset "CellPhases" begin
 
 @testset "filter" begin
+    # The realised response as applied (forward and backward, so |H|²) at the requested periods:
+    # half amplitude at pmin and pmax, full mid-band. Checked for several frame intervals, since
+    # cutoffs read in the wrong units (e.g. as fractions of Nyquist) shift with dt.
+    for (dt, band) in ((10.0, (100, 300)), (3.0, (100, 300)), (5.0, (40, 90)), (1.0, (12, 60)))
+        f = bandpassFilter(band; dt)
+        applied(period) = abs2(freqresp(f, 2π * dt / period))   # radians per sample
+        @test applied(band[1]) ≈ 0.5 atol = 1e-6
+        @test applied(band[2]) ≈ 0.5 atol = 1e-6
+        @test applied(sqrt(band[1] * band[2])) ≈ 1 atol = 1e-6   # centre, on a log scale
+        @test applied(band[1] / 3) < 0.05 && applied(band[2] * 3) < 0.05
+    end
     f = bandpassFilter(BAND; dt = DT)
-    # Half-power points of one pass sit at the band edges, given in minutes: this is what goes
-    # wrong when the sampling rate is not passed to DSP.
-    H = abs.(freqresp(f, 2π * DT .* [1 / 100, 1 / 300, 1 / 170, 1 / 50, 1 / 1000]))
-    @test H[1] ≈ 1 / √2 atol = 1e-3
-    @test H[2] ≈ 1 / √2 atol = 1e-3
-    @test H[3] > 0.99
-    @test H[4] < 0.1 && H[5] < 0.1
-    @test_throws ArgumentError bandpassFilter((300, 100); dt = DT)
-    @test_throws ArgumentError bandpassFilter((15, 300); dt = DT)      # shorter than 2 frames
-    @test_throws ArgumentError bandpassFilter(BAND; dt = DT, order = 0)
     @test 17 < CellPhases._filtermemory(f) < 18
+    @test_throws ArgumentError bandpassFilter((300, 100); dt = DT)
+    @test_throws ArgumentError bandpassFilter((20, 300); dt = DT)      # pmin must exceed 2dt
+    @test bandpassFilter((21, 300); dt = DT) isa Any
+    @test_throws ArgumentError bandpassFilter((100, 300, 500); dt = DT)
+    @test_throws ArgumentError bandpassFilter(BAND; dt = 0)
+    @test_throws ArgumentError bandpassFilter(BAND; dt = DT, order = 0)
 end
 
 @testset "tracks, trim and minlength" begin
@@ -61,6 +68,9 @@ end
     @test_throws ArgumentError phases(neg)
     @test phases(neg; transform = identity) isa PhaseResult
     @test_throws ArgumentError phases(v; mask = 1.0)
+    @test_throws ArgumentError phases(v; minlength = 500)         # below 2pmax
+    @test_logs (:warn, r"no agent can receive a phase") cellPhases(
+        FIELD.positions[1:50], v[1:50], FIELD.ids[1:50]; dt = DT, band = BAND)
 
     # IDs of any type, 3D positions
     p3 = cellPhases([[(x[1], x[2], 0.0) for x in f] for f in FIELD.positions], v,
@@ -239,5 +249,6 @@ end
 end
 
 include("physicell.jl")
+include("makie.jl")
 
 end

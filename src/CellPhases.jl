@@ -26,6 +26,9 @@ export Replicates, replicateSpread
 export agentField, planeWave, pulseTrain, oscillatorField
 export roseData, coherenceData, orderParameterData, cycleLengthData, phaseValueData,
        portraitData, traceData
+export roseplot, roseplot!, coherenceplot, coherenceplot!, orderparameterplot,
+       orderparameterplot!, cyclelengthplot, cyclelengthplot!, phasevalueplot, phasevalueplot!,
+       portraitplot, portraitplot!
 
 include("phases.jl")
 include("surrogates.jl")
@@ -35,5 +38,6 @@ include("replicates.jl")
 include("synthetic.jl")
 include("plotdata.jl")
 include("recipes.jl")
+include("makie.jl")
 
 end

@@ -64,11 +64,21 @@ end
 """
     bandpassFilter(band; dt, order = 3)
 
-The band-pass filter [`cellPhases`](@ref) applies: a Butterworth filter of the given `order`
-passing periods between `band[1]` and `band[2]` minutes, for samples `dt` minutes apart.
+The band-pass filter [`cellPhases`](@ref) applies: a Butterworth filter of the given `order`.
 
-The cutoffs are the half-power points of one pass; applied forward and backward with `filtfilt`,
-the gain there is ½.
+- `band = (pmin, pmax)`: the shortest and longest **periods** to keep, in minutes.
+- `dt`: the frame interval, in minutes.
+
+The conversion is explicit: the cutoff frequencies are `1/pmax` and `1/pmin` cycles per minute
+and the sampling rate is `fs = 1/dt` samples per minute, and `fs` is always passed to
+`DSP.digitalfilter`. Normalised frequencies are never used. With `dt = 10` and
+`band = (100, 300)`: `fs = 0.1` per minute, cutoffs `1/300` and `1/100` cycles per minute.
+
+The cutoffs are the half-power points of one pass (amplitude gain `1/√2`). `cellPhases` applies
+the filter forward and backward (`filtfilt`), which squares the gain, so as applied the cutoffs
+are half-**amplitude** points.
+
+`pmin` must exceed `2dt`: the shortest period a frame interval can resolve is two frames.
 
 # Examples
 ```jldoctest
@@ -76,25 +86,30 @@ julia> using DSP
 
 julia> f = bandpassFilter((100, 300); dt = 10);
 
-julia> H = freqresp(f, 2π * 10 .* [1/100, 1/170, 1/300]);   # angular frequency per sample
+julia> periods = [100, 170, 300];   # minutes
 
-julia> round.(abs.(H); digits = 3)
+julia> H = freqresp(f, 2π .* (1 ./ periods) .* 10);   # radians per sample = 2π · (1/period) · dt
+
+julia> round.(abs2.(H); digits = 3)   # amplitude gain as applied (forward and backward)
 3-element Vector{Float64}:
- 0.707
+ 0.5
  1.0
- 0.707
+ 0.5
 ```
 """
 function bandpassFilter(band; dt::Real, order::Integer = 3)
-    pmin, pmax = Float64.(Tuple(band))
-    dt > 0 || throw(ArgumentError("dt must be positive, got $dt"))
-    0 < pmin < pmax || throw(ArgumentError("band must be (shortest, longest) period in minutes with " *
-                                           "0 < shortest < longest, got $band"))
-    pmin > 2dt || throw(ArgumentError("the shortest period in the band ($pmin min) must exceed two " *
-                                      "frames (2dt = $(2dt) min)"))
+    length(band) == 2 || throw(ArgumentError("band must be (pmin, pmax): two periods in minutes, got $band"))
+    pmin, pmax = Float64(band[1]), Float64(band[2])          # periods, minutes
+    dt > 0 || throw(ArgumentError("dt (the frame interval in minutes) must be positive, got $dt"))
+    0 < pmin < pmax || throw(ArgumentError(
+        "band must be (pmin, pmax) periods in minutes with 0 < pmin < pmax, got $band"))
+    pmin > 2dt || throw(ArgumentError(
+        "the shortest period in the band (pmin = $pmin min) must exceed two frames " *
+        "(2dt = $(2dt) min): shorter periods cannot be resolved at this frame interval"))
     order >= 1 || throw(ArgumentError("order must be at least 1, got $order"))
-    # fs is always passed, so the cutoffs are frequencies in cycles per minute.
-    return digitalfilter(Bandpass(1 / pmax, 1 / pmin), Butterworth(order); fs = 1 / dt)
+    flow, fhigh = 1 / pmax, 1 / pmin                          # cutoffs, cycles per minute
+    fs = 1 / dt                                               # sampling rate, samples per minute
+    return digitalfilter(Bandpass(flow, fhigh), Butterworth(order); fs = fs)
 end
 
 # Frames for the slowest pole of the filter to decay to 1/e: how far the filter's memory reaches.
@@ -111,15 +126,19 @@ one entry per agent present in frame `t`. Frames must be equally spaced, `dt` mi
 
 For each agent, consecutive frames form a run; runs of at least `minlength` minutes are
 transformed (`log` by default), mean-subtracted, band-passed (zero-phase Butterworth of `order`,
-periods `band = (shortest, longest)` in minutes; see [`bandpassFilter`](@ref)), and
+periods `band = (pmin, pmax)` in minutes; see [`bandpassFilter`](@ref)), and
 Hilbert-transformed. `trim` minutes are dropped from each end of the run, where the filter has not
 settled.
 
+`band = (pmin, pmax)` are periods and `dt` the frame interval, all in minutes; see
+[`bandpassFilter`](@ref) for how they become cutoffs.
+
 - `trim` defaults to the filter's memory (frames for its slowest pole to decay to 1/e), rounded up
   to whole frames.
-- `minlength` defaults to `2trim + 2band[2]`: two of the slowest cycles left after trimming.
+- `minlength` defaults to `2trim + 2pmax`: two of the slowest cycles left after trimming. It
+  cannot be set below `2pmax`.
 - `mask = q` sets the phase to `NaN` in each run's frames whose amplitude is below that run's
-  `q`-quantile; the angle of a near-zero analytic signal is mostly noise. Off (`0`) by default.
+  `q`-quantile. Off (`0`) by default; see the manual for when to use it.
 
 # Examples
 ```jldoctest
@@ -152,7 +171,12 @@ function cellPhases(positions::AbstractVector, values::AbstractVector, ids::Abst
     trimframes = trim === nothing ? ceil(Int, _filtermemory(filt)) : round(Int, trim / dt)
     trimframes >= 0 || throw(ArgumentError("trim must be non-negative, got $trim"))
     minlength = minlength === nothing ? 2trimframes * dt + 2pmax : Float64(minlength)
+    minlength >= 2pmax || throw(ArgumentError(
+        "minlength ($minlength min) must be at least two of the longest periods in the band " *
+        "(2pmax = $(2pmax) min); shorter tracks cannot carry that rhythm"))
     minframes = max(ceil(Int, minlength / dt - 1e-9), 2trimframes + 1, 12order + 1)
+    nT * dt < minlength && @warn "the recording is $(nT * dt) min long, shorter than minlength " *
+        "($minlength min = 2trim + 2pmax by default); no agent can receive a phase"
 
     D = _dims(positions)
     pos = [SVector{D,Float64}[_point(x, D) for x in positions[t]] for t in 1:nT]

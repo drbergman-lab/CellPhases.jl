@@ -59,7 +59,30 @@ p.tracks[1]
 ## 2. Band-pass filter
 
 !!! tierbrief
-    A zero-phase Butterworth band-pass keeps periods between `band[1]` and `band[2]` minutes.
+    A zero-phase Butterworth band-pass keeps periods between `pmin` and `pmax` minutes, given as
+    `band = (pmin, pmax)`, for frames `dt` minutes apart. Both are required, and both are in
+    minutes.
+
+!!! tierfull
+    **Units, worked through.** With 10-minute frames and a 100–300-minute band:
+
+    | Quantity | Value |
+    |:--|:--|
+    | `dt` | 10 min per frame |
+    | `band = (pmin, pmax)` | (100, 300) min, periods |
+    | sampling rate `fs = 1/dt` | 0.1 samples per minute |
+    | low cutoff `1/pmax` | 1/300 cycles per minute |
+    | high cutoff `1/pmin` | 1/100 cycles per minute |
+
+    `bandpassFilter` makes exactly this conversion and passes `fs` to `DSP.digitalfilter`; it
+    never hands DSP normalised frequencies. `pmin` must exceed two frames (`2dt`), the shortest
+    period the frame interval can resolve, and every track must last at least two of the
+    longest periods (`minlength ≥ 2pmax`).
+
+    **What the cutoffs mean as applied.** `pmin` and `pmax` are the half-power points of one pass
+    of the filter, where its amplitude gain is `1/√2`. The filter runs forward and then backward,
+    which squares the gain, so in the filtered signal a component with period `pmin` or `pmax`
+    keeps half its amplitude.
 
 !!! tierfull
     The phase in step 3 is only meaningful for one dominant rhythm. Fast bursts would make the
@@ -85,10 +108,15 @@ p.tracks[1]
     longer, and impose a clean rhythm on irregular agents, hiding the cycle-to-cycle variability
     that is often the point.
 
+The amplitude gain as applied (squared, for the forward and backward passes) at a few periods:
+
 ```@example phases
 using DSP
-f = bandpassFilter((100, 300); dt = 10)
-round.(abs.(freqresp(f, 2π * 10 .* [1/60, 1/100, 1/170, 1/300, 1/500])); digits = 3)
+dt = 10
+f = bandpassFilter((100, 300); dt)
+periods = [60, 100, 170, 300, 500]                           # minutes
+gain = abs2.(freqresp(f, 2π .* dt ./ periods))               # radians per sample = 2π·dt/period
+round.(gain; digits = 3)
 ```
 
 !!! tierdev
@@ -97,12 +125,15 @@ round.(abs.(freqresp(f, 2π * 10 .* [1/60, 1/100, 1/170, 1/300, 1/500])); digits
     `filter` test pins the half-power points at the band edges, which is the check that catches
     a missing `fs`; a pure sine does not (see [Pitfalls](pitfalls.md)).
 
-!!! tierjournal "2026-10-15 — Physical units only; fs always passed"
-    Decided: the API takes the band, `trim` and `minlength` in minutes and `dt` in minutes per
-    frame; frames appear only in `frames` selections and in results. `bandpassFilter` always
-    passes `fs`.
+!!! tierjournal "2026-10-15 — Physical units only; fs always passed; band required"
+    Decided: the API takes the band as periods `(pmin, pmax)` in minutes, `trim` and `minlength`
+    in minutes, and `dt` in minutes per frame; frames appear only in `frames` selections and in
+    results. `bandpassFilter` converts to cycles per minute and always passes `fs = 1/dt`.
+    `band` has no default (it is a time scale of the system studied); `order = 3` does. The
+    filter test measures the realised response at `pmin`, `pmax` and mid-band for four frame
+    intervals.
     Why: the prototype once built the filter without `fs`; DSP read the cutoffs as fractions of
-    Nyquist and passed 200–600 minutes instead of 100–300. The spurious "upward wave" it produced
+    Nyquist and passed about 200–600 minutes instead of 100–300. The spurious "upward wave" it produced
     survived every pure-sine check. Taking minutes everywhere leaves no frame-based number for a
     user to mistranslate.
 
@@ -124,9 +155,15 @@ round.(abs.(freqresp(f, 2π * 10 .* [1/60, 1/100, 1/170, 1/300, 1/500])); digits
     for its slowest pole to decay to 1/e, rounded up to whole frames: 180 minutes for 100–300
     minutes at 10-minute frames.
 
-    **Masking.** Where the amplitude is close to zero the angle is mostly noise. `mask = q` sets
-    the phase to `NaN` in each track's frames whose amplitude is below that track's
-    `q`-quantile; `mask = 0.2` drops the weakest fifth. It is off by default.
+    **Masking.** When the analytic signal `z = y + i·H[y]` spirals in close to the origin, the
+    band-passed signal is weak compared with the noise, and its angle is ill-defined: a small
+    fluctuation swings the phase by a large amount. That shows up as phase slips, phase running
+    backward (`ω ≤ 0`), spuriously short or long cycle lengths, and noisy gradient fits.
+    `mask = q` sets the phase to `NaN` in each track's frames whose amplitude is below that
+    track's own `q`-quantile; `mask = 0.2` drops each agent's weakest fifth. It is off by
+    default, because it has a cost: the results that remain are biased toward moments when
+    agents oscillate strongly, which can overstate how regular and how synchronised the rhythm
+    is. Compare with and without it before relying on it.
 
 ```@example phases
 p.trim, p.minlength
@@ -135,6 +172,12 @@ p.trim, p.minlength
 !!! tierdev
     `hilbert` is `DSP.hilbert` (FFT, zero the negative frequencies, double the positive, inverse
     FFT). The trim default comes from `_filtermemory(filter)`, `−1/log(max |pole|)` frames.
+
+!!! tierjournal "2026-10-15 — Masking off by default"
+    Decided: low-amplitude masking is opt-in (`mask = q`, per-track amplitude quantile).
+    Why: it removes ill-defined phases but biases what remains toward strongly oscillating
+    moments; that trade-off is the user's to make. Phase-defect (spiral core) counting was also
+    considered and left out of the first version.
 
 !!! tierjournal "2026-10-15 — trim and minlength derived from the band"
     Decided: `trim` defaults to the filter's memory and `minlength` to `2trim + 2·band[2]`, both

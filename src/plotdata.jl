@@ -144,10 +144,18 @@ binned median and quartiles from [`phaseValueCheck`](@ref).
 
 # Examples
 ```jldoctest
-julia> v = phaseValueCheck(cellPhases([[(0.0, 0.0)]], [[1.0]], [[1]]; dt = 10, band = (100, 300)));
+julia> using Random
 
-julia> size(phaseValueData(v).density)
-(36, 40)
+julia> field = agentField(; n = 50, L = 50.0, nframes = 120, rng = Xoshiro(1));
+
+julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0,
+                     rng = Xoshiro(2));
+
+julia> d = phaseValueData(phaseValueCheck(cellPhases(field.positions, v, field.ids; dt = 10,
+                                                     band = (100, 300))));
+
+julia> size(d.density), round(maximum(sum(d.density; dims = 2)); digits = 2)   # each phase column sums to ≤ 1
+((36, 40), 1.0)
 ```
 """
 function phaseValueData(v::PhaseValueCheck; zedges = range(-2.5, 3.5; length = 41))

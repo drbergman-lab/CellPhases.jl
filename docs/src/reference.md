@@ -45,6 +45,25 @@ traceData
 portraitData
 ```
 
+## Makie recipes
+
+Loaded with a Makie backend (`using CairoMakie` or similar).
+
+```@docs
+roseplot
+roseplot!
+coherenceplot
+coherenceplot!
+orderparameterplot
+orderparameterplot!
+cyclelengthplot
+cyclelengthplot!
+phasevalueplot
+phasevalueplot!
+portraitplot
+portraitplot!
+```
+
 ## Synthetic data
 
 ```@docs

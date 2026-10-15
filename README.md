@@ -25,7 +25,8 @@ readout accepts the vector):
 p = cellPhases(PhysiCellSequence("output"); value = :notch, cell_types = "rgc", band = (100, 300))
 ```
 
-`plot(result)` draws each readout with Plots.jl. Synthetic data with known answers
+`plot(result)` draws each readout with Plots.jl; with a Makie backend loaded there are
+`roseplot`, `coherenceplot` and friends, and Makie's `plot(result)` works too. Synthetic data with known answers
 (`planeWave`, `pulseTrain`, `oscillatorField`) is exported for trying the methods.
 
 Build the docs locally with `julia --project=docs docs/make.jl`.
