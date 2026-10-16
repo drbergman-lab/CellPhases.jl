@@ -25,7 +25,7 @@ export cycleLengths, CycleLengths, phaseValueCheck, PhaseValueCheck
 export phaseCoherence, PhaseCoherence, orderParameter, OrderParameter
 export phaseWaves, PhaseWaves, cleanShare
 export Replicates, replicateSpread
-export agentField, planeWave, pulseTrain, oscillatorField
+export planeWave, pulseTrain, oscillatorField
 export roseData, coherenceData, orderParameterData, cycleLengthData, phaseValueData,
        portraitData, traceData
 export roseplot, roseplot!, coherenceplot, coherenceplot!, orderparameterplot,

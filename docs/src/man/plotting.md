@@ -25,6 +25,7 @@ gr(fmt = :png)
 
 ```@example plotting
 using CellPhases, Random, Plots
+include(joinpath(pkgdir(CellPhases), "test", "agent_field.jl"))   # toy agents
 field = agentField(; n = 400, L = 300.0, nframes = 200, step = 0.5, rng = Xoshiro(1))
 v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 60, noise = 0.6,
               rng = Xoshiro(2))

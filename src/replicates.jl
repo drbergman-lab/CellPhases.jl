@@ -35,9 +35,10 @@ that element.
 julia> using Random
 
 julia> runs = map(1:3) do k
-           field = agentField(; n = 150, L = 100.0, nframes = 150, rng = Xoshiro(k))
-           v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0)
-           cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))
+           rng = Xoshiro(k); xy = [(100rand(rng), 100rand(rng)) for _ in 1:150]
+           positions, ids = fill(xy, 150), fill(1:150, 150)
+           v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 0, rng)
+           cellPhases(positions, v, ids; dt = 10, band = (100, 300))
        end;
 
 julia> o = orderParameter(runs; radii = [20], frames = 1:4:150, nsurrogates = 4, rng = Xoshiro(9));

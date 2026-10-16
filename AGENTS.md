@@ -10,8 +10,10 @@ and return a `Replicates` ([`src/replicates.jl`](src/replicates.jl)).
 Plot-ready data is in [`src/plotdata.jl`](src/plotdata.jl), Plots recipes in
 [`src/recipes.jl`](src/recipes.jl), Makie recipes in
 [`ext/CellPhasesMakieExt.jl`](ext/CellPhasesMakieExt.jl) (functions declared in
-[`src/makie.jl`](src/makie.jl)), synthetic data with known answers in
-[`src/synthetic.jl`](src/synthetic.jl).
+[`src/makie.jl`](src/makie.jl)), synthetic values with known answers (on caller-supplied
+agents, usually a real run's) in [`src/synthetic.jl`](src/synthetic.jl). Toy agents
+(`agentField`) are test-only, in [`test/agent_field.jl`](test/agent_field.jl); docs examples
+`include` it.
 
 Start with [`docs/src/dev/architecture.md`](docs/src/dev/architecture.md): module map, the data
 flow through one call, invariants. Design decisions are `!!! tierjournal` blocks on the manual

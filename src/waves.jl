@@ -47,12 +47,14 @@ speaks for.
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 300, L = 150.0, nframes = 150, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(150.0rand(rng), 150.0rand(rng)) for _ in 1:300];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 90,
+julia> positions, ids = fill(xy, 150), fill(1:300, 150);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 90,
                      rng = Xoshiro(2));
 
-julia> w = PhaseWaves(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)); r = 30);
+julia> w = PhaseWaves(cellPhases(positions, v, ids; dt = 10, band = (100, 300)); r = 30);
 
 julia> cleanShare(w) > 0.9
 true
@@ -76,12 +78,14 @@ misread; choose `r` well below the shortest wavelength of interest.
 ```jldoctest
 julia> using Random, Statistics
 
-julia> field = agentField(; n = 300, L = 150.0, nframes = 150, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(150.0rand(rng), 150.0rand(rng)) for _ in 1:300];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 90,
+julia> positions, ids = fill(xy, 150), fill(1:300, 150);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 90,
                      rng = Xoshiro(2));
 
-julia> w = PhaseWaves(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)); r = 30);
+julia> w = PhaseWaves(cellPhases(positions, v, ids; dt = 10, band = (100, 300)); r = 30);
 
 julia> good = w.r2 .>= 0.5;
 

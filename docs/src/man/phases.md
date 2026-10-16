@@ -8,6 +8,7 @@
 
 ```@example phases
 using CellPhases, Random
+include(joinpath(pkgdir(CellPhases), "test", "agent_field.jl"))   # toy agents
 field = agentField(; n = 200, L = 200.0, nframes = 150, rng = Xoshiro(1))
 v = pulseTrain(field.ids; dt = 10, period = 170, rng = Xoshiro(2))
 

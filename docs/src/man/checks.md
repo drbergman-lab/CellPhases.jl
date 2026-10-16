@@ -5,6 +5,7 @@ how long are the cycles.
 
 ```@setup checks
 using CellPhases, Random
+include(joinpath(pkgdir(CellPhases), "test", "agent_field.jl"))   # toy agents
 field = agentField(; n = 200, L = 200.0, nframes = 150, rng = Xoshiro(1))
 v = pulseTrain(field.ids; dt = 10, period = 170, rng = Xoshiro(2))
 p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300))

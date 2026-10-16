@@ -67,7 +67,6 @@ portraitplot!
 ## Synthetic data
 
 ```@docs
-agentField
 planeWave
 pulseTrain
 oscillatorField

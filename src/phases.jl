@@ -147,12 +147,14 @@ settled.
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 200, L = 100.0, nframes = 150, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(100.0rand(rng), 100.0rand(rng)) for _ in 1:200];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 90,
+julia> positions, ids = fill(xy, 150), fill(1:200, 150);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 90,
                      rng = Xoshiro(2));
 
-julia> p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300));
+julia> p = cellPhases(positions, v, ids; dt = 10, band = (100, 300));
 
 julia> length(p.tracks), p.trim
 (200, 180.0)

@@ -1,37 +1,6 @@
-# Synthetic data with known answers: agent geometry, plane waves, pulse trains and an oscillator
-# field. Every generator returns per-frame vectors in the shape `cellPhases` takes. Values are
-# positive, so `transform = log` also applies.
-
-"""
-    agentField(; n, L, nframes, step = 0.0, rng = Random.default_rng()) -> (; positions, ids)
-
-`n` tracked agents placed uniformly at random in the square `[0, L]²`, present in all `nframes`
-frames with IDs `1:n`. With `step > 0` each agent takes a Gaussian random-walk step of that
-standard deviation per frame, reflected at the walls.
-
-# Examples
-```jldoctest
-julia> using Random
-
-julia> field = agentField(; n = 10, L = 50.0, nframes = 3, step = 1.0, rng = Xoshiro(1));
-
-julia> length(field.positions), length(field.positions[1]), field.ids[2] == 1:10
-(3, 10, true)
-```
-"""
-function agentField(; n::Integer, L::Real, nframes::Integer, step::Real = 0.0,
-                    rng::AbstractRNG = Random.default_rng())
-    x = [SVector{2,Float64}(L * rand(rng), L * rand(rng)) for _ in 1:n]
-    positions = Vector{Vector{SVector{2,Float64}}}(undef, nframes)
-    for t in 1:nframes
-        positions[t] = copy(x)
-        step > 0 || continue
-        x = [_reflect.(xi .+ step .* SVector(randn(rng), randn(rng)), L) for xi in x]
-    end
-    return (positions = positions, ids = [collect(1:n) for _ in 1:nframes])
-end
-
-_reflect(c, L) = (c = mod(c, 2L); c > L ? 2L - c : c)
+# Synthetic values with known answers, on positions and IDs the caller supplies (typically a real
+# run's): plane waves, pulse trains and an oscillator field. Every generator returns per-frame
+# vectors in the shape `cellPhases` takes. Values are positive, so `transform = log` also applies.
 
 """
     planeWave(positions; dt, period, speed, direction, noise = 0.3, baseline = 1.0,
@@ -115,9 +84,11 @@ Oscillators sharing one `period` whose phase offsets are spatially correlated:
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 20, L = 50.0, nframes = 4, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(50.0rand(rng), 50.0rand(rng)) for _ in 1:20];
 
-julia> v = oscillatorField(field.positions, field.ids; dt = 10, period = 180,
+julia> positions, ids = fill(xy, 4), fill(1:20, 4);
+
+julia> v = oscillatorField(positions, ids; dt = 10, period = 180,
                            correlationlength = 20.0, phasesd = 1.0, rng = Xoshiro(2));
 
 julia> length(v[4])

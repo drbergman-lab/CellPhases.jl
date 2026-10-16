@@ -10,7 +10,7 @@
 | `src/readouts.jl` | `CycleLengths`, `PhaseValueCheck`, `PhaseCoherence`, `OrderParameter`, their result types, and the null statistics. |
 | `src/waves.jl` | `PhaseWaves`, `PhaseWaves`, `cleanShare`, the local plane fit. |
 | `src/replicates.jl` | `Replicates`, `replicateSpread`, and the readout methods for vectors of results with their pooling. |
-| `src/synthetic.jl` | `agentField`, `planeWave`, `pulseTrain`, `oscillatorField`. |
+| `src/synthetic.jl` | `planeWave`, `pulseTrain`, `oscillatorField`: values with known answers on given agents. |
 | `src/plotdata.jl` | `roseData` and the other plot-data functions. |
 | `src/recipes.jl` | RecipesBase recipes, drawn from the plot-data functions. |
 | `src/makie.jl` | Declarations and docstrings of the Makie recipe functions (`roseplot` …). |
@@ -18,6 +18,7 @@
 | `ext/CellPhasesPhysiCellOutputExt.jl` | The `PhysiCellSequence` method: `cellDataSequence`, per-frame layout, then the array method. |
 | `ext/CellPhasesPhysiCellModelManagerExt.jl` | `Simulation`, `Monad`, `Sampling` methods: resolve to output folders and forward. |
 | `test/runtests.jl` | Filter, tracks, sign conventions, plane-wave validation, broadband test, nulls, replicates, plot data and recipes. |
+| `test/agent_field.jl` | `agentField`, toy agents for tests and docs examples (not API). |
 | `test/makie.jl` | The Makie extension, with Makie alone (no backend). |
 | `test/physicell.jl`, `test/physicell_output.jl` | The PhysiCellOutput extension, on synthetic data written in the PhysiCell output format at test time. |
 

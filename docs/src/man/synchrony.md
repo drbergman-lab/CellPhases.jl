@@ -4,6 +4,7 @@ How far apart agents can be and still be in step, measured two ways, each agains
 
 ```@setup sync
 using CellPhases, Random
+include(joinpath(pkgdir(CellPhases), "test", "agent_field.jl"))   # toy agents
 field = agentField(; n = 400, L = 300.0, nframes = 200, step = 0.5, rng = Xoshiro(1))
 v = oscillatorField(field.positions, field.ids; dt = 10, period = 180,
                     correlationlength = 25.0, phasesd = 1.0, rng = Xoshiro(2))

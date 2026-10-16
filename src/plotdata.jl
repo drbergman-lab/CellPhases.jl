@@ -26,12 +26,14 @@ proportional to the number of fits. Fields:
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 300, L = 150.0, nframes = 150, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(150.0rand(rng), 150.0rand(rng)) for _ in 1:300];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 90,
+julia> positions, ids = fill(xy, 150), fill(1:300, 150);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 90,
                      rng = Xoshiro(2));
 
-julia> w = PhaseWaves(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)); r = 30);
+julia> w = PhaseWaves(cellPhases(positions, v, ids; dt = 10, band = (100, 300)); r = 30);
 
 julia> rose = roseData(w);
 
@@ -146,12 +148,14 @@ binned median and quartiles from [`PhaseValueCheck`](@ref).
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 50, L = 50.0, nframes = 120, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(50.0rand(rng), 50.0rand(rng)) for _ in 1:50];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0,
+julia> positions, ids = fill(xy, 120), fill(1:50, 120);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 0,
                      rng = Xoshiro(2));
 
-julia> d = phaseValueData(PhaseValueCheck(cellPhases(field.positions, v, field.ids; dt = 10,
+julia> d = phaseValueData(PhaseValueCheck(cellPhases(positions, v, ids; dt = 10,
                                                      band = (100, 300))));
 
 julia> size(d.density), round(maximum(sum(d.density; dims = 2)); digits = 2)   # each phase column sums to ≤ 1
@@ -186,12 +190,14 @@ One agent's trace over every frame it appears in: `time` (from the first frame, 
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 5, L = 50.0, nframes = 120, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(50.0rand(rng), 50.0rand(rng)) for _ in 1:5];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0,
+julia> positions, ids = fill(xy, 120), fill(1:5, 120);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 0,
                      rng = Xoshiro(2));
 
-julia> tr = traceData(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)), 3);
+julia> tr = traceData(cellPhases(positions, v, ids; dt = 10, band = (100, 300)), 3);
 
 julia> length(tr.time), count(!isnan, tr.phase)
 (120, 84)
@@ -217,12 +223,14 @@ counter-clockwise once per cycle, and φ is its angle.
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 5, L = 50.0, nframes = 120, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(50.0rand(rng), 50.0rand(rng)) for _ in 1:5];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0,
+julia> positions, ids = fill(xy, 120), fill(1:5, 120);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 0,
                      rng = Xoshiro(2));
 
-julia> length(portraitData(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)), 3).re)
+julia> length(portraitData(cellPhases(positions, v, ids; dt = 10, band = (100, 300)), 3).re)
 84
 ```
 """

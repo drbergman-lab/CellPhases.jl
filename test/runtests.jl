@@ -4,6 +4,8 @@ using Random, Statistics
 using RecipesBase: RecipesBase
 using DSP: freqresp
 
+include("agent_field.jl")   # toy agents
+
 # Real-like geometry: a cortex-like density (~15 µm spacing), agents drifting slowly, 10-min frames.
 const FIELD = agentField(; n = 400, L = 300.0, nframes = 200, step = 0.5, rng = Xoshiro(1))
 const DT = 10.0

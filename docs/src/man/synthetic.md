@@ -1,14 +1,27 @@
 # Synthetic data
 
-Generators with known answers, in the shape `cellPhases` takes, for trying the methods and for
-tests.
+Generators of values with known answers, in the shape `cellPhases` takes, for checking the methods
+and their settings on your own agents.
 
 !!! tierbrief
-    `agentField` makes positions and IDs; `planeWave`, `pulseTrain` and `oscillatorField` make
-    values on them. All values are positive, so `transform = log` also applies.
+    `planeWave`, `pulseTrain` and `oscillatorField` make values with a known answer on positions
+    and IDs you supply, usually a real run's, to check the method and its settings on that
+    geometry. All values are positive, so `transform = log` also applies.
+
+On a real run, keep its agents and replace the signal:
+
+```julia
+real = cellPhases(sequence; value = :notch, cell_types = "rgc", band = (100, 300))
+v = planeWave(real.positions; dt = 10, period = 180, speed = 25/60, direction = 90)
+w = PhaseWaves(cellPhases(real.positions, v, real.ids; dt = 10, band = (100, 300)); r = 30)
+# recovered speed and direction, and cleanShare(w), say whether r = 30 works on these cells
+```
+
+The examples below use toy agents from the test suite instead.
 
 ```@example synthetic
 using CellPhases, Random
+include(joinpath(pkgdir(CellPhases), "test", "agent_field.jl"))   # toy agents
 field = agentField(; n = 300, L = 250.0, nframes = 150, step = 0.5, rng = Xoshiro(1))
 ```
 

@@ -40,11 +40,13 @@ two cycles into one.
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 100, L = 100.0, nframes = 200, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(100.0rand(rng), 100.0rand(rng)) for _ in 1:100];
 
-julia> v = pulseTrain(field.ids; dt = 10, period = 170, rng = Xoshiro(2));
+julia> positions, ids = fill(xy, 200), fill(1:100, 200);
 
-julia> c = CycleLengths(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)));
+julia> v = pulseTrain(ids; dt = 10, period = 170, rng = Xoshiro(2));
+
+julia> c = CycleLengths(cellPhases(positions, v, ids; dt = 10, band = (100, 300)));
 
 julia> round(median(c.lengths); digits = -1)
 170.0
@@ -121,12 +123,14 @@ where the band-passed signal does; a pulse-like value can peak elsewhere. Tracks
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 100, L = 100.0, nframes = 150, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(100.0rand(rng), 100.0rand(rng)) for _ in 1:100];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0,
+julia> positions, ids = fill(xy, 150), fill(1:100, 150);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 0,
                      rng = Xoshiro(2));
 
-julia> c = PhaseValueCheck(cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300)));
+julia> c = PhaseValueCheck(cellPhases(positions, v, ids; dt = 10, band = (100, 300)));
 
 julia> c.r2 > 0.7, abs(rad2deg(c.peak)) < 5
 (true, true)
@@ -214,12 +218,14 @@ Compare two selections to check that on your data.
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 300, L = 150.0, nframes = 150, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(150.0rand(rng), 150.0rand(rng)) for _ in 1:300];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0,
+julia> positions, ids = fill(xy, 150), fill(1:300, 150);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 0,
                      rng = Xoshiro(2));
 
-julia> p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300));
+julia> p = cellPhases(positions, v, ids; dt = 10, band = (100, 300));
 
 julia> c = PhaseCoherence(p; dr = 10, rmax = 40, frames = 1:4:150, rng = Xoshiro(2));
 
@@ -326,12 +332,14 @@ not 0, so compare `R` with `null`, computed the same way on [`timeShift`](@ref) 
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 300, L = 150.0, nframes = 150, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(150.0rand(rng), 150.0rand(rng)) for _ in 1:300];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0,
+julia> positions, ids = fill(xy, 150), fill(1:300, 150);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 0,
                      rng = Xoshiro(2));
 
-julia> p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300));
+julia> p = cellPhases(positions, v, ids; dt = 10, band = (100, 300));
 
 julia> o = OrderParameter(p; radii = [10, 20, 40], frames = 1:4:150, rng = Xoshiro(2));
 

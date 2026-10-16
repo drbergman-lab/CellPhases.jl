@@ -15,12 +15,14 @@ null bands and p-values; any readout can be run on it directly.
 ```jldoctest
 julia> using Random
 
-julia> field = agentField(; n = 50, L = 50.0, nframes = 120, rng = Xoshiro(1));
+julia> rng = Xoshiro(1); xy = [(50.0rand(rng), 50.0rand(rng)) for _ in 1:50];
 
-julia> v = planeWave(field.positions; dt = 10, period = 180, speed = 0.5, direction = 0,
+julia> positions, ids = fill(xy, 120), fill(1:50, 120);
+
+julia> v = planeWave(positions; dt = 10, period = 180, speed = 0.5, direction = 0,
                      rng = Xoshiro(2));
 
-julia> p = cellPhases(field.positions, v, field.ids; dt = 10, band = (100, 300));
+julia> p = cellPhases(positions, v, ids; dt = 10, band = (100, 300));
 
 julia> s = timeShift(p; rng = Xoshiro(2));
 
